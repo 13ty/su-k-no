@@ -1,0 +1,343 @@
+{
+  "meta": {
+    "generated": "2026-06-17",
+    "model": "mimo-v2.5-free",
+    "total_images": 3,
+    "source_folder": "examples"
+  },
+  "images": [
+    {
+      "id": 1,
+      "filename": "tarot-cards-invoice-template_23-2149737165-1218073157.jpg",
+      "type": "invoice_template",
+      "style": {
+        "primary_style": "Art Deco / Esoteric Mystical",
+        "color_palette": {
+          "background": "Deep purple to dark navy gradient",
+          "primary_accent": "Metallic gold",
+          "text_primary": "White",
+          "text_secondary": "Gold",
+          "borders": "Gold metallic lines"
+        },
+        "mood": "Luxurious, mystical, professional with occult undertones"
+      },
+      "layout": {
+        "orientation": "Portrait (A4/Letter proportions)",
+        "sections": [
+          "header",
+          "invoice_info",
+          "address_block",
+          "payment_info",
+          "item_table",
+          "totals",
+          "footer"
+        ]
+      },
+      "header": {
+        "top_text": "INVOICE",
+        "subtitle": "TAROT",
+        "logo": {
+          "name": "Mystic Studio",
+          "iconography": "Star cluster with radiating points",
+          "position": "Center top, within decorative oval frame"
+        },
+        "decorative_elements": [
+          "Three crescent moons (waxing, full, waning) centered below logo",
+          "Geometric Art Deco corner frames with circular motifs",
+          "Dotted line borders",
+          "Small diamond accents"
+        ]
+      },
+      "invoice_info": {
+        "invoice_number": "N784795",
+        "date": "10.12.2022",
+        "position": "Center, below header decoration"
+      },
+      "address_block": {
+        "label": "Invoice to:",
+        "placeholder": "Address Line, 000 / City Name / Zipcode",
+        "position": "Left side"
+      },
+      "payment_info": {
+        "label": "Payment Info:",
+        "fields": [
+          "IBAN: 000 000 000 001",
+          "A/C Name: Lorem Ipsum",
+          "Bank details: 10 - Lorem Ipsum"
+        ],
+        "position": "Right side"
+      },
+      "item_table": {
+        "columns": ["ITEM DESCRIPTION", "QTY", "PRICE", "TOTAL"],
+        "rows": 6,
+        "sample_data": "Lorem Ipsum Dolor / 01 / $12 / $12 each",
+        "styling": "Gold header text, white data text, horizontal line separators"
+      },
+      "totals": {
+        "subtotal": "$72",
+        "tax_rate": "8%",
+        "total": "$77.76"
+      },
+      "footer": {
+        "decorative_elements": [
+          "Crescent moon and star symbols",
+          "Radiating sun/star burst motif",
+          "Dotted borders matching header"
+        ]
+      },
+      "symbols_and_meanings": {
+        "crescent_moons": "Triple moon - Goddess symbol, phases of life",
+        "stars": "Guidance, spiritual illumination",
+        "geometric_frames": "Order, structure, cosmic geometry",
+        "sun_burst": "Enlightenment, power, divine energy"
+      }
+    },
+    {
+      "id": 2,
+      "filename": "gold-black-esoteric-magical-tarot-cards-templates-frame-border_729684-1492-1573586122.jpg",
+      "type": "frame_template_collection",
+      "style": {
+        "primary_style": "Art Deco / Dark Esoteric / Occult",
+        "color_palette": {
+          "background": "Matte black / very dark charcoal",
+          "borders": "Metallic gold (brushed/antique finish)",
+          "accents": "Gold with subtle variations in sheen"
+        },
+        "mood": "Dark luxury, mystical, mysterious, high-end occult aesthetic"
+      },
+      "layout": {
+        "orientation": "Landscape sheet containing 8 portrait card frames",
+        "grid": "2 rows x 4 columns",
+        "card_proportions": "Standard tarot card ratio (approx 2.75:4.75)"
+      },
+      "frames": [
+        {
+          "position": "Row 1, Col 1 (top-left)",
+          "design": "Curtain/Drape Motif",
+          "elements": [
+            "Hanging curtain/drape silhouette at top",
+            "Small scattered stars",
+            "Crescent moon at bottom",
+            "Dotted line inner border",
+            "Single line outer border"
+          ],
+          "symbolism": "Theatrical reveal, hidden knowledge, portal"
+        },
+        {
+          "position": "Row 1, Col 2",
+          "design": "Celestial Diamond",
+          "elements": [
+            "Large diamond/rhombus shape at bottom-left",
+            "Small crescent moon above diamond",
+            "Dotted line extending from diamond",
+            "Four small dots in corners",
+            "Minimal single-line border"
+          ],
+          "symbolism": "Sacred geometry, manifestation, earth element"
+        },
+        {
+          "position": "Row 1, Col 3",
+          "design": "Abstract Cosmic Lines",
+          "elements": [
+            "Flowing curved lines crossing in lower half",
+            "Subtle geometric shapes (circles, arcs)",
+            "Small dot accents",
+            "Thin double-line border",
+            "Asymmetric composition"
+          ],
+          "symbolism": "Cosmic flow, energy currents, unseen forces"
+        },
+        {
+          "position": "Row 1, Col 4 (top-right)",
+          "design": "Solar Eclipse / Radiant Eye",
+          "elements": [
+            "Radiating sun rays / burst pattern at bottom center",
+            "Crescent moon overlaid on sun",
+            "Small dots along top border",
+            "Double-line frame with inner space"
+          ],
+          "symbolism": "Balance of opposites, eclipse energy, third eye"
+        },
+        {
+          "position": "Row 2, Col 1 (bottom-left)",
+          "design": "Guiding Star",
+          "elements": [
+            "Four-pointed star with radiating lines at left center",
+            "Small dots trailing from star",
+            "Single accent dot at top",
+            "Minimal thin-line border"
+          ],
+          "symbolism": "North star, guidance, destiny, navigation"
+        },
+        {
+          "position": "Row 2, Col 2",
+          "design": "Dotted Constellation",
+          "elements": [
+            "Evenly spaced dots forming border pattern",
+            "Larger accent dots at cardinal points",
+            "Small diamond at top center",
+            "Minimal frame"
+          ],
+          "symbolism": "Constellation mapping, cosmic order, connectedness"
+        },
+        {
+          "position": "Row 2, Col 3",
+          "design": "Hanging Chandelier / Portal",
+          "elements": [
+            "Ornate pendant/chandelier shape hanging from top",
+            "Small star/diamond accents",
+            "Dotted inner frame",
+            "Geometric corner accents"
+          ],
+          "symbolism": "Spiritual descent, divine connection, chandelier of wisdom"
+        },
+        {
+          "position": "Row 2, Col 4 (bottom-right)",
+          "design": "Minimal Elegant",
+          "elements": [
+            "Clean single/double line border",
+            "Small diamond accents at corners",
+            "Thin vertical lines on sides",
+            "Most minimal design of the set"
+          ],
+          "symbolism": "Simplicity, clarity, open potential"
+        }
+      ],
+      "common_motifs": [
+        "Crescent moons",
+        "Stars (4-pointed and scattered)",
+        "Diamond/rhombus shapes",
+        "Dotted lines and borders",
+        "Geometric precision",
+        "Art Deco influence"
+      ]
+    },
+    {
+      "id": 3,
+      "filename": "esoteric-magical-tarot-cards-templates-golden-frame-border_729684-1493-1072304197.jpg",
+      "type": "frame_template_collection",
+      "style": {
+        "primary_style": "Art Deco / Light Esoteric / Celestial",
+        "color_palette": {
+          "background_sheet": "Dark charcoal/black",
+          "card_background": "Cream / warm beige / off-white",
+          "borders": "Gold / antique gold",
+          "accents": "Gold with subtle gradients"
+        },
+        "mood": "Elegant, celestial, mystical yet lighter/softer than the black-background version"
+      },
+      "layout": {
+        "orientation": "Landscape sheet containing 8 portrait card frames",
+        "grid": "2 rows x 4 columns",
+        "card_proportions": "Standard tarot card ratio",
+        "watermark": "FREEPIK repeated across entire image"
+      },
+      "frames": [
+        {
+          "position": "Row 1, Col 1 (top-left)",
+          "design": "Crescent Moon with Radiant Burst",
+          "elements": [
+            "Crescent moon at top center",
+            "Radiating sun/star burst at bottom center",
+            "Dotted rectangular inner frame",
+            "Small decorative dots along bottom edge",
+            "Gold corner accents"
+          ],
+          "symbolism": "Moon and sun union, yin-yang balance, celestial harmony"
+        },
+        {
+          "position": "Row 1, Col 2",
+          "design": "Diamond Chain Border",
+          "elements": [
+            "Chain of small diamonds forming left and bottom border",
+            "Decorative diamond motif at top center",
+            "Dots along right border",
+            "Clean cream interior"
+          ],
+          "symbolism": "Connected chain of wisdom, linked knowledge, abundance"
+        },
+        {
+          "position": "Row 1, Col 3",
+          "design": "Diagonal Diamond Portal",
+          "elements": [
+            "Large diamond/rhombus at bottom-left corner",
+            "Crescent moon at top-right corner",
+            "Dotted inner frame",
+            "Small accent dots scattered"
+          ],
+          "symbolism": "Portal between realms, corner magic, directional energy"
+        },
+        {
+          "position": "Row 1, Col 4 (top-right)",
+          "design": "Star Guide",
+          "elements": [
+            "Four-pointed star at top-left corner",
+            "Dotted border frame",
+            "Small corner decorations",
+            "Minimal and clean"
+          ],
+          "symbolism": "Guiding light, North Star, spiritual direction"
+        },
+        {
+          "position": "Row 2, Col 1 (bottom-left)",
+          "design": "Celestial Curtain",
+          "elements": [
+            "Draped curtain silhouette at top",
+            "Hanging decorative elements (stars, dots)",
+            "Crescent moon accent",
+            "Scattered sparkle dots",
+            "Dotted frame border"
+          ],
+          "symbolism": "Revealing hidden truths, theatrical mystical presentation"
+        },
+        {
+          "position": "Row 2, Col 2",
+          "design": "Scalloped Cloud Border",
+          "elements": [
+            "Wavy/scalloped decorative border at top",
+            "Small dots and sparkle accents",
+            "Moon phase symbols at bottom",
+            "Light, airy composition"
+          ],
+          "symbolism": "Celestial clouds, dreamscape, ethereal realm"
+        },
+        {
+          "position": "Row 2, Col 3",
+          "design": "Cosmic Curves",
+          "elements": [
+            "Flowing curved dotted lines",
+            "Subtle geometric arcs",
+            "Minimal decoration",
+            "Abstract cosmic energy"
+          ],
+          "symbolism": "Orbital paths, cosmic flow, universal cycles"
+        },
+        {
+          "position": "Row 2, Col 4 (bottom-right)",
+          "design": "Simple Star Frame",
+          "elements": [
+            "Four-pointed star at top center",
+            "Clean single/double line border",
+            "Minimal corner accents",
+            "Most understated design"
+          ],
+          "symbolism": "Simplicity, pure intention, open canvas"
+        }
+      ],
+      "common_motifs": [
+        "Crescent moons (various phases)",
+        "Four-pointed stars",
+        "Radiating sun bursts",
+        "Diamond/rhombus shapes",
+        "Dotted line borders",
+        "Draped curtain silhouettes"
+      ],
+      "differences_from_image_2": {
+        "background": "Light cream/beige card backgrounds vs solid black",
+        "overall_feeling": "Softer, more celestial vs darker, more occult",
+        "watermark": "Contains FREEPIK watermarks",
+        "border_style": "More delicate, thinner lines"
+      }
+    }
+  ]
+}

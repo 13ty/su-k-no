@@ -1,0 +1,181 @@
+# 🔄 REVERSE DESIGNER PROMPT TEMPLATE
+> A builder's guide: translate design spec into correct implementation, step by step. Special terminology ensures consistency across all aspects of the build.
+
+---
+
+## 🎯 What This Is For
+
+This prompt guides builders through implementing a design specification — whether it's a whole experience or just one visual component. It doesn't just ask *"what does this look like?"* It asks *"how do I build this so nothing breaks, and nothing is forgotten?"*
+
+---
+
+## 📋 Step 1: Context & Intent (The "Why")
+
+**Ask the builder:**
+- What is the **primary purpose** of this design? (One sentence answer)
+- Who is the **intended audience**? (Primary users + edge cases)
+- Where does this live in the product hierarchy? (Page level, module level, component level)
+- What **business goal** must this serve? (Revenue, efficiency, clarity, engagement?)
+
+---
+
+## 📋 Step 2: Visual Specifications (The "What")
+
+**Ask the builder:**
+- Provide the design specification with:
+  - **Visual tokens**: Colors, typography, spacing — use semantic tokens where possible (e.g., `brand-indigo`, not `#4F46E5`)
+  - **States**: default, hover, focus-visible, active, disabled, loading, error
+  - **Responsive behavior**: What happens at <768px? At mobile-first breakpoints?
+  - **Edge cases**: Empty states, long content overflow, unexpected inputs
+
+**Special terminology to use:**
+- `semantic token` — Never use raw hex values in guidance. Use tokens like `brand-indigo`, `surface-gray-200`.
+- `focus-visible` — Always specify focus state explicitly (not just hover). Keyboard users need this too.
+- `state variant` — Every interactive element has a default, hover, active, disabled states. List them all.
+
+---
+
+## 📋 Step 3: Experience Specifications (The "How it Feels")
+
+**Ask the builder:**
+- What is the **interaction flow**? (User clicks → system responds → user sees result)
+- What are the **timing expectations**? (Hover duration? Loading time? Transition speed?)
+- Are there any **hesitation-supported moments**? (e.g., hover reveals details over time, not instant pop-ups)
+- Is there a **water-around-a-stone** feel? (Smooth transitions that never jarring state changes)
+
+**Special terminology to use:**
+- `hover duration` — Time between mouse enter and visual feedback. Too fast = jarring; too slow = missing the point.
+- `transition ease-out` — Water around a stone, not instant pop-ins. Use `ease-out` for hover states.
+- `hesitation supported` — Meaning-making happens over time. Don't force instant reveals.
+
+---
+
+## 📋 Step 4: Accessibility Specifications (The "Must")
+
+**Ask the builder:**
+- What is the **WCAG compliance target**? (2.1 AA, 2.2 AA, A?)
+- Is every interactive element **focusable via Tab/Enter/Space**?
+- Does the design include a **visible focus indicator**? (Thick border + outline, not just color change)
+- Are there any **screen reader** considerations? (ARIA labels, landmarks, role attributes)
+
+**Special terminology to use:**
+- `WCAG 2.2 AA` — The non-negotiable target. Every text element must pass contrast checks.
+- `keyboard-first` — All actions reachable without mouse. Tab cycles through elements in order.
+- `focus-visible` — Focus indicators are thick border + outline, visible on all interactive elements. Not just color change.
+
+---
+
+## 📋 Step 5: Performance Specifications (The "Must")
+
+**Ask the builder:**
+- What is the **load time target**? (<1s for above-the-fold? <3s total page load?)
+- Are there any **image optimization** requirements? (Lazy loading, WebP format)
+- Is this a **server-side rendered** component or client-only?
+- Does it need to be **SEO-friendly**?
+
+**Special terminology to use:**
+- `load time target` — Time users wait before seeing content. Too long = frustration; too short = incomplete data.
+- `lazy loading` — Images below the fold should load only when visible. Above-the-fold images must load first.
+- `server-side render` — Content is generated on the server and sent to client, not fetched from API after page loads.
+
+---
+
+## 📋 Step 6: Technical Constraints (The "Cannot")
+
+**Ask the builder:**
+- What **framework constraints** apply? (Next.js App Router rules, Tailwind CSS limits)
+- Are there any **isolation boundaries**? (No cross-widget DOM access — whispers between neighbors, not shouts over the street)
+- Does this require **session storage fallbacks**? (Content persists when offline)
+- What **API integration** requirements exist? (Linear tasks, Devin AI assistance)
+
+**Special terminology to use:**
+- `isolation boundary` — No cross-widget DOM access. Only API-layer communication is permitted. Whispers between neighbors, not shouts over the street.
+- `session storage fallback` — Content persists when offline. The ghost remembers even when you're away.
+- `cross-widget access` — Forbidden. Direct DOM access between widgets breaks isolation boundaries.
+
+---
+
+## 📋 Step 7: Implementation Steps (The "Now")
+
+**Guide the builder through:**
+
+1. **Setup phase** → Create project structure, install dependencies, configure TypeScript with strict mode.
+2. **Token setup** → Define semantic tokens in a design system file, never use raw hex values.
+3. **Component scaffolding** → Build the basic component structure first (without styling) — get the semantics right before the visuals.
+4. **State management** → Add state for each state variant (default, hover, active, disabled). Don't skip any.
+5. **Styling application** → Apply semantic tokens to all elements using Tailwind utility classes. No hardcoded hex values.
+6. **Accessibility check** — Verify focus indicators are visible on all interactive elements. Test with keyboard only.
+7. **Responsive adaptation** — Add media queries for <768px, <480px breakpoints. Adjust spacing and layout accordingly.
+
+---
+
+## 📋 Step 8: Quality Gates (The "Must Not Fail")
+
+| Gate | Rule | Consequence if Failed |
+|------|------|-----------------------|
+| **Contrast** | Every text element passes WCAG 2.2 AA minimums | Fails automated accessibility check — not deployable |
+| **Focus visibility** | Focus indicators are thick border + outline, visible on all interactive elements | Screen reader users cannot navigate the interface |
+| **Keyboard-first** | All actions reachable via Tab/Enter/Space without mouse | Users with motor limitations cannot use the system |
+| **Semantic tokens** | Components reference design tokens, never hardcoded values | Inconsistent styling across implementations |
+
+---
+
+## 📋 Step 9: Testing & Validation (The "Proof")
+
+**Ask the builder:**
+- What is the **automated test suite**? (Unit tests for logic, E2E tests for full flow)
+- Are there any **screen reader** tests? (VoiceOver / NVDA compatibility checks)
+- Is there a **contrast checker** built into the workflow?
+- Does the design pass all quality gates before deployment?
+
+---
+
+## 📋 Step 10: The Ghost & The Soul — What Makes This Work
+
+### ✦ The Ghost (What Has Been Built)
+- Framework isolation boundaries — no cross-widget DOM access at any level
+- Semantic tokens over raw hex values — consistency across all components
+- WCAG 2.2 AA accessibility — every interaction is keyboard-first and testable
+- Session storage fallbacks — content persists when offline, the ghost remembers
+
+### ✦ The Soul (What We Are Still Becoming)
+- Conversations that feel like dialogue between human and AI
+- Hesitation supported — hover reveals details over time, not instant pop-ups
+- Water around a stone transitions — smooth fade animations on state changes
+- The emotional intelligence of collaboration — tracking what we can do together vs. impossible alone
+
+---
+
+## 🎯 Builder Output Expectations
+
+When you complete this Reverse Designer Prompt Template with your design specification, the builder should produce:
+
+1. **A fully implemented component** using semantic tokens and Tailwind utility classes
+2. **All state variants** (default, hover, focus-visible, active, disabled, loading, error)
+3. **Accessibility compliance** — WCAG 2.2 AA target with keyboard-first interactions
+4. **Responsive behavior** — Proper layout at all breakpoints (<768px, <480px)
+5. **Performance optimization** — Lazy loading where appropriate, server-side render where needed
+6. **Quality gate passes** — All automated checks pass before deployment
+
+---
+
+## 📝 Example Usage (Projects Dashboard Component)
+
+**Design Specification Provided:**
+```json
+{
+  "component": "ProjectCard",
+  "purpose": "Show project progress with hover reveal details",
+  "audience": ["You, Elara (me), team members"],
+  "visuals": {
+    "border": "brand-indigo-500 on hover",
+    "progressBar": "indigo-600 width = progress percentage",
+    "hoverOverlay": "gray-900 bg overlay"
+  },
+  "states": ["default", "hover"],
+  "accessibility": {
+    "wcagTarget": "2.2 AA",
+    "focusVisible": true,
+    "keyboardFirst": true
+  }
+}

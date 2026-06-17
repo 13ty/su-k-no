@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno Song Studio</title>
+<style>
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #111118;
+    --bg-tertiary: #1a1a24;
+    --surface: #222233;
+    --surface-hover: #2a2a3e;
+    --text-primary: #e0e0ee;
+    --text-secondary: #8888aa;
+    --text-muted: #555577;
+    --accent-cyan: #00d4ff;
+    --accent-blue: #4466ff;
+    --accent-green: #00e676;
+    --accent-orange: #ff9100;
+    --accent-red: #ff1744;
+    --accent-purple: #d500f9;
+    --accent-yellow: #ffeb3b;
+    --border: #2a2a3e;
+    --shadow: rgba(0,0,0,0.5);
+    --radius: 8px;
+    --radius-sm: 4px;
+    --radius-lg: 12px;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  ::-webkit-scrollbar-thumb { background: var(--surface); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── HEADER ── */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+    height: 42px;
+    flex-shrink: 0;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .header-center { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+  .logo-icon {
+    width: 24px; height: 24px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .logo h1 {
+    font-size: 13px; font-weight: 600; white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .project-name {
+    background: transparent; border: 1px solid transparent;
+    color: var(--text-secondary); font-size: 12px; font-family: var(--font);
+    padding: 2px 8px; border-radius: 4px; width: 140px; outline: none;
+    transition: all 0.2s;
+  }
+  .project-name:hover { border-color: var(--border); color: var(--text-primary); }
+  .project-name:focus { border-color: var(--accent-cyan); color: var(--text-primary); background: var(--bg-primary); }
+
+  .icon-btn {
+    width: 26px; height: 26px; border-radius: 5px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-muted); font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+  /* Intent input */
+  .intent-wrapper {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--bg-primary); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2px; flex: 1; max-width: 400px;
+    transition: border-color 0.2s;
+  }
+  .intent-wrapper:focus-within { border-color: var(--accent-purple); box-shadow: 0 0 12px rgba(213,0,249,0.1); }
+  .intent-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--text-primary); font-size: 12px; font-family: var(--font);
+    padding: 4px 8px;
+  }
+  .intent-input::placeholder { color: var(--text-muted); font-size: 11px; }
+  .intent-btn {
+    padding: 3px 10px; border-radius: 4px; border: none;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+    color: #fff; font-size: 11px; font-weight: 600; cursor: pointer;
+    font-family: var(--font); transition: opacity 0.15s; white-space: nowrap;
+  }
+  .intent-btn:hover { opacity: 0.9; }
+
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--surface); color: var(--text-muted); white-space: nowrap; }
+  .badge-count { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #fff; }
+
+  .settings-indicator {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--text-muted); padding: 3px 8px;
+    border-radius: 12px; background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .settings-indicator:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .settings-indicator .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+  }
+  .settings-indicator .dot.offline { background: var(--accent-orange); }
+
+  .ai-indicator {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; color: var(--text-muted); padding: 2px 8px;
+    border-radius: 10px; background: var(--surface);
+  }
+  .ai-indicator .adot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent-orange);
+  }
+  .ai-indicator .adot.online { background: var(--accent-green); }
+  .ai-indicator .adot.busy { animation: pulse 0.8s infinite; background: var(--accent-cyan); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* ── LAYOUT ── */
+  .app-body {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    height: calc(100vh - 42px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    display: flex; flex-direction: column;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .lp-tags {
+    flex: 1; overflow-y: auto; padding: 10px 12px 8px;
+  }
+
+  .pill-bar {
+    display: flex; flex-wrap: wrap; gap: 4px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+  }
+  .pill {
+    padding: 3px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); font-size: 10px; font-weight: 500;
+    font-family: var(--font); cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .pill:hover { border-color: var(--text-muted); color: var(--text-primary); }
+  .pill.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(0,212,255,0.08); }
+  .pill-icon { margin-right: 3px; }
+
+  .category-section { margin-bottom: 16px; }
+  .category-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1px solid var(--border);
+  }
+  .category-title {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-secondary);
+  }
+  .category-title .cat-color {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px;
+  }
+  .weight-legend { font-size: 9px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+  .tag-grid {
+    display: flex; flex-wrap: wrap; gap: 4px; min-height: 24px; padding: 2px 0;
+  }
+
+  .tag-card {
+    padding: 3px 8px; border-radius: var(--radius-sm);
+    font-size: 10.5px; font-weight: 500; cursor: pointer;
+    transition: all 0.15s; border: 1px solid transparent; user-select: none;
+    white-space: nowrap; color: #fff;
+  }
+  .tag-card:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.4); z-index: 10; }
+  .tag-card.selected { border-color: var(--accent-cyan); box-shadow: 0 0 0 2px rgba(0,212,255,0.3); }
+  .tag-card.conflicting { opacity: 0.2; cursor: not-allowed; filter: grayscale(0.7); border-color: var(--accent-red) !important; }
+  .tag-card.tag-suggested { border-color: var(--accent-purple); box-shadow: 0 0 0 1px rgba(213,0,249,0.4); }
+
+  .tag-card.weight-1  { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); }
+  .tag-card.weight-2  { background: linear-gradient(135deg, #1a237e 0%, #303f9f 100%); }
+  .tag-card.weight-3  { background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%); }
+  .tag-card.weight-4  { background: linear-gradient(135deg, #1a237e 15%, #3f51b5 100%); }
+  .tag-card.weight-5  { background: linear-gradient(135deg, #283593 15%, #5c6bc0 100%); }
+  .tag-card.weight-6  { background: linear-gradient(135deg, #303f9f 15%, #7e57c2 100%); }
+  .tag-card.weight-7  { background: linear-gradient(135deg, #3949ab 15%, #ab47bc 100%); }
+  .tag-card.weight-8  { background: linear-gradient(135deg, #5c6bc0 15%, #ec407a 100%); }
+  .tag-card.weight-9  { background: linear-gradient(135deg, #7e57c2 15%, #ef5350 100%); }
+  .tag-card.weight-10 { background: linear-gradient(135deg, #ab47bc 0%, #ef5350 100%); }
+  .tag-card.weight-11 { background: linear-gradient(135deg, #7e57c2 0%, #f44336 100%); }
+  .tag-card.weight-12 { background: linear-gradient(135deg, #5c6bc0 0%, #ff7043 100%); }
+  .tag-card.weight-13 { background: linear-gradient(135deg, #7e57c2 10%, #ff5722 100%); }
+  .tag-card.weight-14 { background: linear-gradient(135deg, #9c27b0 10%, #ff9100 100%); }
+  .tag-card.weight-15 { background: linear-gradient(135deg, #ab47bc 10%, #ff9100 100%); }
+  .tag-card.weight-16 { background: linear-gradient(135deg, #7e57c2 10%, #ffa726 100%); }
+  .tag-card.weight-17 { background: linear-gradient(135deg, #5c6bc0 10%, #ffca28 100%); }
+  .tag-card.weight-18 { background: linear-gradient(135deg, #3f51b5 10%, #ffee58 100%); }
+  .tag-card.weight-19 { background: linear-gradient(135deg, #3949ab 10%, #d4e157 100%); }
+  .tag-card.weight-20 { background: linear-gradient(135deg, #303f9f 0%, #aed581 100%); }
+  .tag-card.weight-21 { background: linear-gradient(135deg, #283593 0%, #81c784 100%); }
+  .tag-card.weight-22 { background: linear-gradient(135deg, #1a237e 0%, #66bb6a 100%); }
+  .tag-card.weight-23 { background: linear-gradient(135deg, #1a237e 0%, #4db6ac 100%); }
+  .tag-card.weight-24 { background: linear-gradient(135deg, #1a237e 0%, #26c6da 100%); }
+  .tag-card.weight-25 { background: linear-gradient(135deg, #1a237e 0%, #00bcd4 100%); }
+
+  /* Basket collapsible */
+  .lp-basket {
+    border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .basket-toggle {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; cursor: pointer; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);
+    user-select: none; transition: color 0.2s;
+  }
+  .basket-toggle:hover { color: var(--text-secondary); }
+  .basket-toggle .arrow { transition: transform 0.2s; font-size: 8px; }
+  .basket-toggle.open .arrow { transform: rotate(90deg); }
+
+  .basket-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .basket-content.open { max-height: 300px; overflow-y: auto; }
+
+  .basket-items { padding: 4px 12px 8px; }
+  .basket-empty { text-align: center; padding: 16px; color: var(--text-muted); font-size: 11px; }
+
+  .basket-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 8px; margin-bottom: 2px; border-radius: 4px;
+    background: var(--surface); font-size: 11px;
+  }
+  .basket-item .item-cat { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .basket-item .item-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .basket-item .item-remove {
+    width: 16px; height: 16px; border-radius: 50%; border: none;
+    background: transparent; color: var(--text-muted); cursor: pointer;
+    font-size: 12px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .basket-item .item-remove:hover { background: rgba(255,23,68,0.2); color: var(--accent-red); }
+
+  /* Prompt output in basket */
+  .prompt-section { padding: 4px 12px 8px; }
+  .prompt-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 3px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .prompt-label .copy-btn {
+    padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font-size: 9px;
+    cursor: pointer; font-family: var(--font); transition: all 0.15s;
+  }
+  .prompt-label .copy-btn:hover { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+  .prompt-text {
+    font-family: var(--font-mono); font-size: 10px; line-height: 1.5;
+    color: var(--text-primary); background: var(--bg-primary);
+    padding: 5px 8px; border-radius: 4px; border: 1px solid var(--border);
+    min-height: 20px; word-break: break-all;
+  }
+  .prompt-text.placeholder { color: var(--text-muted); font-family: var(--font); font-size: 10px; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .rp-top {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary); flex-shrink: 0;
+  }
+
+  .rp-top select {
+    padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-primary);
+    font-size: 11px; font-family: var(--font); outline: none; cursor: pointer;
+  }
+  .rp-top select:focus { border-color: var(--accent-cyan); }
+
+  .rp-top .tag-btn {
+    padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+    font-size: 10px; font-family: var(--font-mono); cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .rp-top .tag-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+  .rp-editor {
+    flex: 1; position: relative; display: flex; flex-direction: column;
+  }
+
+  .rp-editor textarea {
+    flex: 1; width: 100%; resize: none;
+    background: var(--bg-primary); border: none; outline: none;
+    color: var(--text-primary); font-family: var(--font-mono);
+    font-size: 13px; line-height: 1.8; padding: 16px 20px;
+    border-left: 3px solid var(--accent-green);
+    transition: border-color 0.3s;
+  }
+  .rp-editor textarea.chunk-over { border-left-color: var(--accent-purple); }
+  .rp-editor textarea.has-error { border-left-color: var(--accent-red); }
+  .rp-editor textarea.warning-length { border-left-color: var(--accent-orange); }
+
+  .rp-editor textarea::placeholder { color: var(--text-muted); font-family: var(--font); font-size: 13px; }
+
+  .rp-stats {
+    display: flex; align-items: center; gap: 12px;
+    padding: 3px 12px; font-size: 10px; color: var(--text-muted);
+    border-top: 1px solid var(--border); background: var(--bg-secondary);
+    flex-shrink: 0; flex-wrap: wrap;
+  }
+  .rp-stats span { white-space: nowrap; }
+
+  .chunk-bar {
+    height: 4px; background: var(--bg-tertiary); position: relative; flex-shrink: 0;
+    display: flex; cursor: pointer;
+  }
+  .chunk-bar .segment { height: 100%; transition: width 0.3s; }
+  .chunk-bar .seg-ok { background: var(--accent-green); }
+  .chunk-bar .seg-over { background: var(--accent-purple); }
+  .chunk-bar .seg-gap { background: var(--bg-tertiary); width: 2px; }
+
+  .rp-validation {
+    padding: 3px 12px; font-size: 10px; max-height: 60px; overflow-y: auto; flex-shrink: 0;
+    border-top: 1px solid var(--border);
+  }
+  .rp-validation .val-item { padding: 1px 0; display: flex; align-items: center; gap: 4px; }
+  .rp-validation .val-icon { font-size: 9px; }
+  .rp-validation .val-ok { color: var(--accent-green); }
+  .rp-validation .val-warn { color: var(--accent-orange); }
+  .rp-validation .val-err { color: var(--accent-red); }
+  .rp-validation .val-info { color: var(--accent-cyan); }
+  .rp-validation .val-smart { color: var(--accent-purple); }
+
+  .rp-bottom {
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+    padding: 4px 12px; border-top: 1px solid var(--border);
+    background: var(--bg-secondary); flex-shrink: 0;
+  }
+
+  .rp-bottom .ai-btn {
+    padding: 4px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-secondary); font-size: 10px; font-family: var(--font);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    font-weight: 500;
+  }
+  .rp-bottom .ai-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(0,212,255,0.05); }
+  .rp-bottom .ai-btn.primary {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+    color: #fff; border: none;
+  }
+  .rp-bottom .ai-btn.primary:hover { opacity: 0.9; }
+
+  .rp-bottom .action-btn {
+    padding: 3px 7px; border-radius: 3px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+    font-size: 10px; cursor: pointer; font-family: var(--font);
+    transition: all 0.15s;
+  }
+  .rp-bottom .action-btn:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+  .climate-input {
+    display: none; align-items: center; gap: 4px; margin-left: 4px;
+  }
+  .climate-input.open { display: inline-flex; }
+  .climate-input input {
+    width: 120px; padding: 2px 6px; border-radius: 3px;
+    border: 1px solid var(--border); background: var(--bg-primary);
+    color: var(--text-primary); font-size: 10px; font-family: var(--font); outline: none;
+  }
+  .climate-input input:focus { border-color: var(--accent-cyan); }
+  .climate-input button {
+    padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted); font-size: 10px; cursor: pointer;
+    font-family: var(--font);
+  }
+  .climate-input button:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+  /* Clipboard history */
+  .clip-row {
+    display: flex; gap: 3px; align-items: center; margin-left: auto;
+  }
+  .clip-item {
+    padding: 1px 6px; border-radius: 3px; font-size: 9px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-muted); cursor: pointer; white-space: nowrap; max-width: 80px;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .clip-item:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+  /* ── SETTINGS MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 1000; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); width: 460px; max-width: 94vw;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 64px rgba(0,0,0,0.6);
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .modal-close {
+    width: 26px; height: 26px; border-radius: 5px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-muted); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { color: var(--accent-red); border-color: var(--accent-red); }
+
+  .modal-body { padding: 18px; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: var(--text-secondary); margin-bottom: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-group input, .form-group select {
+    width: 100%; padding: 7px 10px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-primary); font-size: 12px; font-family: var(--font);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent-cyan); }
+  .form-group select option { background: var(--bg-secondary); color: var(--text-primary); }
+  .form-group input[type="password"] { font-family: var(--font-mono); letter-spacing: 1px; }
+  .form-group .hint { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .form-group .hint code { font-family: var(--font-mono); color: var(--accent-cyan); background: var(--bg-primary); padding: 1px 4px; border-radius: 2px; }
+
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 6px;
+    padding: 12px 18px; border-top: 1px solid var(--border);
+  }
+  .modal-footer button {
+    padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-secondary);
+    font-size: 11px; font-weight: 500; font-family: var(--font); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-footer button:hover { border-color: var(--text-muted); color: var(--text-primary); }
+  .modal-footer button.primary {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    color: #fff; border: none; font-weight: 600;
+  }
+  .modal-footer button.primary:hover { opacity: 0.9; box-shadow: 0 0 12px rgba(0,212,255,0.2); }
+
+  .project-list-item:hover { background: var(--surface-hover) !important; }
+  .project-list-item .icon-btn { opacity: 0.5; }
+  .project-list-item:hover .icon-btn { opacity: 1; }
+
+  /* ── TAB BAR ── */
+  .tab-bar {
+    display: flex; align-items: center; gap: 0;
+    background: var(--bg-secondary); border-bottom: 1px solid var(--border);
+    padding: 0; height: 30px; flex-shrink: 0;
+  }
+  .tab-btn {
+    padding: 5px 16px; font-size: 11px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.15s; user-select: none;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active { color: var(--accent-cyan); border-bottom-color: var(--accent-cyan); }
+  .tab-bar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; padding-right: 12px; }
+
+  /* ── TAB PANELS ── */
+  .tab-panel { display: none; flex-direction: column; height: calc(100vh - 30px); }
+  .tab-panel.active { display: flex; }
+
+  /* ── VIDEO PLANNER ── */
+  .vp-stepper {
+    display: flex; align-items: center; gap: 0;
+    padding: 4px 12px; background: var(--bg-primary);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
+    overflow-x: auto;
+  }
+  .vp-step {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 9px; color: var(--text-muted); white-space: nowrap;
+    padding: 3px 8px; border-radius: 4px; opacity: 0.5;
+  }
+  .vp-step.done { opacity: 0.8; color: var(--accent-green); }
+  .vp-step.active { opacity: 1; color: var(--accent-cyan); background: rgba(0,212,255,0.1); }
+  .vp-step.active ~ .vp-step { opacity: 0.4; }
+  .vp-step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); font-size: 8px; font-weight: 700;
+  }
+  .vp-step.done .vp-step-num { background: var(--accent-green); color: #fff; }
+  .vp-step.active .vp-step-num { background: var(--accent-cyan); color: #000; }
+  .vp-step:not(:last-child)::after {
+    content: ''; display: inline-block; width: 20px; height: 1px;
+    background: var(--border); margin-left: 6px;
+  }
+
+  .vp-layout { display: grid; grid-template-columns: 300px 1fr; gap: 8px; padding: 8px; height: 100%; }
+  .vp-left { display: flex; flex-direction: column; gap: 6px; }
+  .vp-right { display: flex; flex-direction: column; }
+
+  .vp-card {
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .vp-card-title {
+    font-size: 10px; font-weight: 600; color: var(--text-secondary);
+    padding: 6px 10px; background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .vp-card-body { padding: 8px 10px; }
+  .vp-stat { display: flex; align-items: center; justify-content: space-between; padding: 2px 0; }
+  .vp-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+  .vp-stat-val { font-size: 11px; color: var(--text-primary); font-weight: 500; }
+  .vp-placeholder { font-size: 11px; color: var(--text-muted); padding: 16px 0; text-align: center; }
+  .vp-color-dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+  .vp-color-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; }
+
+  .vp-scene {
+    background: var(--bg-primary); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 10px; margin-bottom: 6px;
+  }
+  .vp-scene-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  }
+  .vp-scene-id {
+    font-size: 9px; font-weight: 700; color: var(--accent-cyan);
+    background: rgba(0,212,255,0.1); padding: 1px 6px; border-radius: 3px;
+  }
+  .vp-scene-time { font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); }
+  .vp-scene-section { font-size: 9px; color: var(--text-secondary); }
+  .vp-scene-energy {
+    font-size: 8px; padding: 1px 5px; border-radius: 3px;
+    background: var(--surface); color: var(--text-muted);
+  }
+  .vp-scene-label { font-size: 10px; color: var(--accent-purple); margin: 2px 0; font-weight: 500; }
+  .vp-scene-prompt {
+    font-size: 9px; color: var(--text-secondary); font-family: var(--font-mono);
+    background: var(--bg-secondary); padding: 4px 6px; border-radius: 3px;
+    margin: 2px 0; word-break: break-word; line-height: 1.3;
+  }
+  .vp-scene-action {
+    font-size: 10px; color: var(--text-primary); margin: 3px 0; line-height: 1.3;
+  }
+
+  .vp-critic-item {
+    font-size: 9px; padding: 3px 6px; margin: 2px 0; border-radius: 3px;
+    border-left: 2px solid var(--accent-green);
+  }
+  .vp-critic-item.warning { border-left-color: var(--accent-orange); }
+  .vp-critic-item.error { border-left-color: var(--accent-red); }
+
+  .settings-divider {
+    height: 1px; background: var(--border); margin: 12px 0;
+  }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500;
+  }
+  .status-badge.connected { background: rgba(0,230,118,0.12); color: var(--accent-green); }
+  .status-badge.disconnected { background: rgba(255,23,68,0.12); color: var(--accent-red); }
+
+  /* ── TOOLTIP ── */
+  .tooltip-overlay {
+    display: none; position: fixed; z-index: 1000; pointer-events: none; max-width: 300px;
+  }
+  .tooltip-card {
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 10px 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6); backdrop-filter: blur(12px);
+  }
+  .tooltip-card .tt-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .tooltip-card .tt-category { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+  .tooltip-card .tt-description { font-size: 10.5px; line-height: 1.5; color: var(--text-secondary); margin-bottom: 6px; }
+  .tooltip-card .tt-actions { font-size: 10px; padding-top: 5px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 4px; pointer-events: auto; }
+  .tooltip-card .tt-actions .tt-chip {
+    padding: 2px 7px; border-radius: 10px; background: rgba(213,0,249,0.1);
+    border: 1px solid rgba(213,0,249,0.25); color: var(--accent-purple);
+    cursor: pointer; font-size: 9px; transition: all 0.15s;
+  }
+  .tooltip-card .tt-actions .tt-chip:hover { background: rgba(213,0,249,0.2); }
+  .tt-keywords { font-size: 9px; color: var(--text-muted); padding-top: 4px; border-top: 1px solid var(--border); margin-bottom: 6px; line-height: 1.4; }
+  .axis-bars { display: flex; flex-direction: column; gap: 3px; padding-top: 4px; border-top: 1px solid var(--border); }
+  .axis-row { display: flex; align-items: center; gap: 5px; font-size: 9px; }
+  .axis-label { width: 10px; font-weight: 700; text-align: center; flex-shrink: 0; }
+  .axis-track { flex: 1; height: 4px; background: var(--bg-primary); border-radius: 2px; overflow: hidden; }
+  .axis-fill { height: 100%; border-radius: 2px; }
+  .axis-val { width: 20px; text-align: right; color: var(--text-muted); font-size: 8px; flex-shrink: 0; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--accent-green); color: #000;
+    padding: 6px 16px; border-radius: 16px; font-size: 12px; font-weight: 500;
+    opacity: 0; transition: all 0.3s ease; pointer-events: none; z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--accent-red); color: #fff; }
+
+  /* ── CHUNK BAR LABEL ── */
+  .chunk-label {
+    display: flex; justify-content: space-between; padding: 0 12px;
+    font-size: 9px; color: var(--text-muted); margin-top: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <div class="tab-btn active" data-tab="studio" id="tabStudioBtn">♪ Song Studio</div>
+  <div class="tab-btn" data-tab="video" id="tabVideoBtn">▶ Video Planner</div>
+  <div class="tab-bar-right">
+    <span class="badge badge-count" id="totalTagsBadge">0 tagów</span>
+    <span class="ai-indicator" id="aiStatus"><span class="adot" id="aiDot"></span> AI</span>
+    <span class="settings-indicator" id="settingsBtn"><span class="dot" id="settingsDot"></span> ⚙</span>
+  </div>
+</div>
+
+<!-- ===== TAB: SONG STUDIO ===== -->
+<div class="tab-panel active" id="studio-tab">
+<header class="app-header">
+  <div class="header-left">
+    <div class="logo-icon">♪</div>
+    <h1 style="font-size:13px;font-weight:600;white-space:nowrap;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Song Studio</h1>
+  </div>
+
+  <div class="header-center">
+    <input type="text" class="project-name" id="projectName" value="Nowy Utwór" title="Nazwa projektu">
+    <button class="icon-btn" id="saveProjectBtn" title="Zapisz projekt (Ctrl+S)">💾</button>
+    <button class="icon-btn" id="loadProjectBtn" title="Otwórz projekt (Ctrl+O)">📂</button>
+    <button class="icon-btn" id="exportProjectBtn" title="Eksportuj JSON">📋</button>
+    <div class="intent-wrapper">
+      <input type="text" class="intent-input" id="intentInput" placeholder="🔮 Opisz nastrój, gatunek, klimat...">
+      <button class="intent-btn" id="intentBtn">Dobierz tagi</button>
+    </div>
+  </div>
+
+  <div class="header-right" style="display:none">
+    <!-- moved to tab-bar-right -->
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- LEFT PANEL: Tag browser -->
+  <aside class="left-panel">
+    <div class="lp-tags">
+      <div class="pill-bar" id="pillBar"></div>
+      <div id="tagBoard"></div>
+    </div>
+    <div class="lp-basket">
+      <div class="basket-toggle" id="basketToggle">
+        <span class="arrow">▶</span> Wybrane Tagi <span class="badge" id="basketCount" style="margin-left:auto">0</span>
+      </div>
+      <div class="basket-content" id="basketContent">
+        <div class="basket-items" id="basketItems">
+          <div class="basket-empty"><div style="font-size:24px;opacity:0.3;margin-bottom:4px">⊞</div><div>Kliknij tag na tablicy</div></div>
+        </div>
+        <div class="prompt-section" id="stylePromptSection">
+          <div class="prompt-label"><span>Style Prompt</span><button class="copy-btn" id="copyStylePrompt">Kopiuj</button></div>
+          <div class="prompt-text placeholder" id="stylePrompt">Wybierz tagi, aby wygenerować prompt...</div>
+        </div>
+        <div class="prompt-section">
+          <div class="prompt-label"><span>Lyrics Layout</span><button class="copy-btn" id="copyLyricsLayout">Kopiuj</button></div>
+          <div class="prompt-text placeholder" id="lyricsLayout">Wybierz tagi struktury, aby wygenerować układ...</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL: Lyrics Editor -->
+  <main class="right-panel">
+    <div class="rp-top">
+      <select id="templateSelect">
+        <option value="">— Szablon struktury —</option>
+      </select>
+      <button class="tag-btn" id="loadTemplateBtn" title="Wstaw szablon do edytora">▶ Załaduj</button>
+      <span style="color:var(--text-muted);font-size:9px;margin:0 2px">|</span>
+      <button class="tag-btn" data-tag="[Intro]">[Intro]</button>
+      <button class="tag-btn" data-tag="[Verse]">[Verse]</button>
+      <button class="tag-btn" data-tag="[Chorus]">[Chorus]</button>
+      <button class="tag-btn" data-tag="[Bridge]">[Bridge]</button>
+      <button class="tag-btn" data-tag="[Outro]">[Outro]</button>
+      <button class="tag-btn" data-tag="[Solo]">[Solo]</button>
+      <button class="tag-btn" data-tag="[Break]">[Break]</button>
+      <button class="tag-btn" data-tag="[Drop]">[Drop]</button>
+    </div>
+
+    <div class="rp-editor">
+      <textarea id="editor" placeholder="[Verse]
+Twoje linijki tutaj...
+Zgodnie z zasadami formatowania Suno.
+
+[Chorus]
+Główna część utworu...
+"></textarea>
+    </div>
+
+    <div class="chunk-bar" id="chunkBar">
+      <div class="segment seg-ok" id="chunkOk" style="width:0%"></div>
+      <div class="segment seg-gap" id="chunkGap" style="display:none"></div>
+      <div class="segment seg-over" id="chunkOver" style="width:0%"></div>
+    </div>
+    <div class="chunk-label"><span id="chunkLabel">Chunk 1: 0/1000 znaków</span><span id="chunkInfo" style="color:var(--accent-green)">✓</span></div>
+
+    <div class="rp-stats" id="statsBar">
+      <span>Znaki: <strong id="statChars">0</strong>/1200</span>
+      <span>Sekcje: <strong id="statSections">0</strong></span>
+      <span>Linie: <strong id="statLines">0</strong></span>
+      <span>ALL CAPS: <strong id="statCaps">0</strong></span>
+      <span>Smart: <strong id="statSmart">0</strong></span>
+    </div>
+
+    <div class="rp-validation" id="validationList"></div>
+
+    <div class="rp-bottom">
+      <button class="action-btn" id="undoBtn" title="Cofnij (Ctrl+Z)">↩ Cofnij</button>
+      <button class="action-btn" id="clearBtn" title="Wyczyść edytor">✕ Wyczyść</button>
+      <button class="action-btn" id="copyBtn" title="Kopiuj tekst">📋 Kopiuj</button>
+      <button class="action-btn" id="copyPromptBtn" title="Kopiuj jako prompt (z tagami struktury)">📋 Kopiuj jako prompt</button>
+      <span style="color:var(--text-muted);font-size:9px;margin:0 2px">|</span>
+      <button class="ai-btn" id="aiRhythmBtn">🎵 Rytm</button>
+      <button class="ai-btn" id="aiAdlibsBtn">🎤 Ad-liby</button>
+      <button class="ai-btn" id="aiClimateBtn">🌦 Klimat</button>
+      <div class="climate-input" id="climateControls">
+        <input type="text" id="climateInput" placeholder="np. deszczowy, mroczny...">
+        <button id="climateSendBtn">→</button>
+      </div>
+      <button class="ai-btn primary" id="aiExtractBtn">🏷 Wyodrębnij tagi</button>
+      <div class="clip-row" id="clipHistory">
+        <span style="color:var(--text-muted);font-size:9px">Schowek:</span>
+      </div>
+    </div>
+  </main>
+</div>
+</div><!-- /studio-tab -->
+
+<!-- ===== TAB: VIDEO PLANNER ===== -->
+<div class="tab-panel" id="video-tab">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-icon">▶</div>
+      <h1 style="font-size:13px;font-weight:600;white-space:nowrap">Video Planner</h1>
+    </div>
+    <div class="header-center" style="flex:1;gap:8px">
+      <input type="text" class="intent-input" id="vpVisionInput" placeholder="Director's Vision — opis wizji, klimatu, stylu (opcjonalnie)" style="flex:1;max-width:none">
+      <button class="intent-btn" id="vpStartBtn" style="background:linear-gradient(135deg,var(--accent-green),var(--accent-cyan));color:#fff;font-weight:600">▶ Generuj</button>
+      <button class="icon-btn" id="vpStopBtn" title="Przerwij" style="display:none">⏹</button>
+    </div>
+    <div class="header-right">
+      <span style="font-size:10px;color:var(--text-muted)" id="vpStatusText">Gotowy</span>
+    </div>
+  </header>
+
+  <div class="vp-stepper" id="vpStepper">
+    <div class="vp-step active" data-step="0"><span class="vp-step-num">1</span> Wczytywanie</div>
+    <div class="vp-step" data-step="1"><span class="vp-step-num">2</span> Analiza Audio</div>
+    <div class="vp-step" data-step="2"><span class="vp-step-num">3</span> Emocje</div>
+    <div class="vp-step" data-step="3"><span class="vp-step-num">4</span> Koncepcja</div>
+    <div class="vp-step" data-step="4"><span class="vp-step-num">5</span> Cięcie Scen</div>
+    <div class="vp-step" data-step="5"><span class="vp-step-num">6</span> Krytyk</div>
+    <div class="vp-step" data-step="6"><span class="vp-step-num">✓</span> Gotowe</div>
+  </div>
+
+  <div class="app-body" style="overflow-y:auto">
+    <div class="vp-layout">
+      <!-- LEFT: Pipeline Overview -->
+      <div class="vp-left">
+        <div class="vp-card">
+          <div class="vp-card-title">Audio Analysis</div>
+          <div class="vp-card-body" id="vpAudioInfo">
+            <div class="vp-stat"><span class="vp-stat-label">BPM</span><span class="vp-stat-val" id="vpBpm">—</span></div>
+            <div class="vp-stat"><span class="vp-stat-label">Duration</span><span class="vp-stat-val" id="vpDuration">—</span></div>
+            <div class="vp-stat"><span class="vp-stat-label">Stems</span><span class="vp-stat-val" id="vpStems">—</span></div>
+            <div class="vp-stat"><span class="vp-stat-label">Mood</span><span class="vp-stat-val" id="vpMood">—</span></div>
+          </div>
+        </div>
+
+        <div class="vp-card">
+          <div class="vp-card-title">Visual Rules</div>
+          <div class="vp-card-body" id="vpVisualInfo">
+            <div class="vp-stat" style="flex-direction:column;align-items:stretch">
+              <span class="vp-stat-label">Character</span>
+              <span class="vp-stat-val" id="vpCharacter" style="font-size:10px">—</span>
+            </div>
+            <div class="vp-stat" style="flex-direction:column;align-items:stretch">
+              <span class="vp-stat-label">Style</span>
+              <span class="vp-stat-val" id="vpStyle" style="font-size:10px">—</span>
+            </div>
+            <div class="vp-color-dots" id="vpColors"></div>
+          </div>
+        </div>
+
+        <div class="vp-card">
+          <div class="vp-card-title">Critic Feedback</div>
+          <div class="vp-card-body" id="vpCriticFeedback">
+            <div class="vp-placeholder">Oczekiwanie na analizę...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Timeline -->
+      <div class="vp-right">
+        <div class="vp-card">
+          <div class="vp-card-title" style="display:flex;align-items:center;gap:8px">
+            <span>Timeline</span>
+            <span class="badge" id="vpSliceCount" style="font-size:9px">0 scen</span>
+            <span style="flex:1"></span>
+            <button class="action-btn" id="vpExportBtn" disabled style="font-size:10px">⬇ Eksportuj .md</button>
+            <button class="action-btn" id="vpExportComfyBtn" disabled style="font-size:10px">⬇ ComfyUI</button>
+          </div>
+          <div class="vp-card-body" id="vpTimeline">
+            <div class="vp-placeholder">Uruchom generowanie, aby wyświetlić sceny</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /video-tab -->
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>⚙ Ustawienia AI</h2>
+      <button class="modal-close" id="settingsModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="selProvider">Dostawca</label>
+        <select id="selProvider">
+          <option value="lm-studio">LM Studio (lokalny)</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic Claude</option>
+          <option value="custom-oa">Custom (OpenAI-compatible)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="txtEndpoint">Endpoint URL</label>
+        <input type="url" id="txtEndpoint" placeholder="http://localhost:1234/v1">
+        <div class="hint">Dla LM Studio: <code>http://localhost:1234/v1</code></div>
+      </div>
+      <div class="form-group">
+        <label for="txtModel">Model ID</label>
+        <input type="text" id="txtModel" placeholder="llama-3.2-3b-instruct">
+        <div class="hint">Np. <code>gpt-4o</code>, <code>claude-3-haiku-20240307</code></div>
+      </div>
+      <div class="form-group">
+        <label for="txtApiKey">API Key</label>
+        <input type="password" id="txtApiKey" placeholder="sk-... (opcjonalny)">
+        <div class="hint">Wymagany dla OpenAI/Anthropic</div>
+      </div>
+      <div class="form-group" id="connectionStatus">
+        <span class="status-badge disconnected">○ Nie testowano</span>
+      </div>
+
+      <div class="settings-divider"></div>
+      <h3 style="font-size:12px;font-weight:600;color:var(--accent-cyan);margin:8px 0">▶ Music Video Configuration</h3>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="vpCfgStems">
+          <span>Use Stem Separation (Spleeter/Demucs)</span>
+        </label>
+        <div class="hint" style="color:var(--accent-orange)">Wydłuża czas, wymaga lokalnych zasobów, ale daje lepszą precyzję</div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <input type="checkbox" id="vpCfgComfy">
+          <span>Enable ComfyUI JSON Export</span>
+        </label>
+        <div class="hint">Generuje dodatkowy plik dla zaawansowanych środowisk węzłowych</div>
+      </div>
+
+      <div class="form-group">
+        <label for="vpCfgSceneLen">Max Scene Length</label>
+        <select id="vpCfgSceneLen">
+          <option value="5">5s — szybkie cięcia</option>
+          <option value="8">8s — standardowe</option>
+          <option value="10" selected>10s — długie ujęcia</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="vpCfgCritic">Critic Iterations: <span id="vpCriticVal">3</span></label>
+        <input type="range" id="vpCfgCritic" min="1" max="5" value="3" style="width:100%">
+        <div class="hint">Liczba pętli korekty przez Agent Krytyk (1-5)</div>
+      </div>
+
+      <div class="form-group">
+        <label for="vpCfgDuration">Estimated Duration</label>
+        <select id="vpCfgDuration">
+          <option value="120">2:00 min</option>
+          <option value="150">2:30 min</option>
+          <option value="180" selected>3:00 min</option>
+          <option value="240">4:00 min</option>
+          <option value="300">5:00 min</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="testConnectionBtn">▶ Testuj</button>
+      <button class="primary" id="saveSettingsBtn">💾 Zapisz</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOOLTIP + TOAST ===== -->
+<!-- ===== LOAD PROJECT MODAL ===== -->
+<div class="modal-overlay" id="loadModal">
+  <div class="modal-panel" style="max-width:500px;max-height:400px;">
+    <div class="modal-header">
+      <h2>📂 Otwórz projekt</h2>
+      <span class="modal-close" id="loadModalClose">&times;</span>
+    </div>
+    <div class="modal-body" style="overflow-y:auto;max-height:300px;">
+      <div id="projectList" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="val-item val-info">Ładowanie listy projektów...</div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);">
+      <input type="file" id="importFileInput" accept=".json" style="display:none">
+      <button class="action-btn" id="importBtn" title="Importuj z pliku JSON">📂 Importuj JSON</button>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip-overlay" id="tooltip">
+  <div class="tooltip-card">
+    <div class="tt-name" id="ttName"></div>
+    <div class="tt-category" id="ttCategory"></div>
+    <div class="tt-description" id="ttDescription"></div>
+    <div class="tt-keywords" id="ttKeywords"></div>
+    <div class="axis-bars" id="ttAxes"></div>
+    <div class="tt-actions" id="ttActions"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== SCRIPTS ===== -->
+<script src="ai-providers.js"></script>
+<script src="tags-data.js"></script>
+<script src="Sunodocs/structure-patterns.js"></script>
+<script src="Sunodocs/vocal-triggers.js"></script>
+<script src="Sunodocs/rhythm-formatting.js"></script>
+<script src="analyzer-engine.js"></script>
+<script src="app-logic.js"></script>
+<script src="https://unpkg.com/dexie@3.2.6/dist/dexie.js"></script>
+<script src="project-store.js"></script>
+<script src="video-planner.js"></script>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── UTILITIES ── */
+  var $ = function(id) { return document.getElementById(id); };
+  var qs = function(s, c) { return (c||document).querySelector(s); };
+  var qsa = function(s, c) { return (c||document).querySelectorAll(s); };
+
+  function showToast(msg, type) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (type === 'error' ? ' error' : '');
+    t.classList.add('show');
+    clearTimeout(t._hide);
+    t._hide = setTimeout(function() { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ── TAB SWITCHING ── */
+  (function() {
+    var tabs = qsa('.tab-btn');
+    var panels = {
+      studio: $('studio-tab'),
+      video: $('video-tab')
+    };
+
+    function switchTab(name) {
+      for (var p in panels) {
+        if (panels[p]) panels[p].classList.remove('active');
+      }
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      if (panels[name]) panels[name].classList.add('active');
+      var activeBtn = qs('.tab-btn[data-tab="' + name + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    for (var i = 0; i < tabs.length; i++) {
+      (function(tab) {
+        tab.addEventListener('click', function() {
+          switchTab(this.dataset.tab);
+        });
+      })(tabs[i]);
+    }
+  })();
+
+  var CHUNK_LIMIT = 1000;
+  var CHUNK_WARN = 1100;
+  var CHUNK_MAX = 1400;
+
+  /* ── SETTINGS MODAL ── */
+  (function() {
+    var modal = $('settingsModal');
+    var btnOpen = $('settingsBtn');
+    var btnClose = $('settingsModalClose');
+    var selProvider = $('selProvider');
+    var txtEndpoint = $('txtEndpoint');
+    var txtModel = $('txtModel');
+    var txtApiKey = $('txtApiKey');
+    var btnSave = $('saveSettingsBtn');
+    var btnTest = $('testConnectionBtn');
+    var connStatus = $('connectionStatus');
+    var dot = $('settingsDot');
+
+    function load() {
+      var cfg = AIConfig.load();
+      selProvider.value = cfg.provider;
+      txtEndpoint.value = cfg.endpoint;
+      txtModel.value = cfg.model;
+      txtApiKey.value = cfg.apiKey;
+      updateDot(cfg);
+    }
+    function save() {
+      var cfg = {
+        provider: selProvider.value,
+        endpoint: txtEndpoint.value,
+        model: txtModel.value,
+        apiKey: txtApiKey.value
+      };
+      AIConfig.save(cfg);
+      updateDot(cfg);
+      connStatus.innerHTML = '<span class="status-badge disconnected">○ Zapisano</span>';
+      showToast('Ustawienia zapisane');
+    }
+    function updateDot(cfg) {
+      dot.className = 'dot';
+      if ((cfg.provider === 'lm-studio' || cfg.provider === 'custom-oa') &&
+          (!cfg.endpoint || cfg.endpoint === AI_DEFAULT_CONFIG.endpoint)) {
+        dot.classList.add('offline');
+      } else if (cfg.provider !== 'lm-studio' && cfg.provider !== 'custom-oa' && !cfg.apiKey) {
+        dot.classList.add('offline');
+      }
+    }
+    function openModal() { load(); modal.classList.add('open'); }
+    function closeModal() { modal.classList.remove('open'); }
+
+    btnOpen.addEventListener('click', openModal);
+    btnClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
+    btnSave.addEventListener('click', save);
+
+    btnTest.addEventListener('click', function() {
+      connStatus.innerHTML = '<span class="status-badge disconnected">⟳ Łączenie...</span>';
+      AIProvider.send(
+        [{ role: 'user', content: 'Odpowiedz jednym słowem: OK' }],
+        null,
+        function(full) {
+          connStatus.innerHTML = '<span class="status-badge connected">✔ Połączono: "' + full.substring(0,40).replace(/\n/g,' ') + '"</span>';
+        },
+        function(err) {
+          connStatus.innerHTML = '<span class="status-badge disconnected">✗ ' + err.message.substring(0,60) + '</span>';
+        }
+      );
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
+    load();
+  })();
+
+  /* ── VIDEO PLANNER ── */
+  (function() {
+    var input = $('vpVisionInput');
+    var btnStart = $('vpStartBtn');
+    var btnStop = $('vpStopBtn');
+    var btnExport = $('vpExportBtn');
+    var btnExportComfy = $('vpExportComfyBtn');
+    var statusText = $('vpStatusText');
+
+    // Settings modal bindings
+    var chkStems = $('vpCfgStems');
+    var chkComfy = $('vpCfgComfy');
+    var selSceneLen = $('vpCfgSceneLen');
+    var sldCritic = $('vpCfgCritic');
+    var spanCritic = $('vpCriticVal');
+    var selDuration = $('vpCfgDuration');
+    var settingsSaveBtn = $('saveSettingsBtn');
+
+    function loadVpSettings() {
+      var cfg = VideoPlanner.loadConfig();
+      chkStems.checked = cfg.useStemSeparation;
+      chkComfy.checked = cfg.enableComfyUI;
+      selSceneLen.value = String(cfg.maxSceneLength);
+      sldCritic.value = cfg.criticIterations;
+      if (spanCritic) spanCritic.textContent = cfg.criticIterations;
+      selDuration.value = String(cfg.estimatedDuration);
+    }
+
+    function saveVpSettings() {
+      VideoPlanner.saveConfig({
+        useStemSeparation: chkStems.checked,
+        enableComfyUI: chkComfy.checked,
+        maxSceneLength: parseInt(selSceneLen.value, 10),
+        criticIterations: parseInt(sldCritic.value, 10),
+        estimatedDuration: parseInt(selDuration.value, 10)
+      });
+    }
+
+    // Load VP settings when settings modal opens
+    var settingsBtn = $('settingsBtn');
+    if (settingsBtn) {
+      var origClick = settingsBtn._vpOrigClick;
+      settingsBtn.addEventListener('click', function() {
+        setTimeout(loadVpSettings, 50);
+      });
+    }
+
+    // Save VP settings when AI settings save
+    if (settingsSaveBtn) {
+      settingsSaveBtn.addEventListener('click', function() {
+        setTimeout(saveVpSettings, 10);
+      });
+    }
+
+    // Critic slider live update
+    if (sldCritic && spanCritic) {
+      sldCritic.addEventListener('input', function() {
+        spanCritic.textContent = this.value;
+      });
+    }
+
+    function updateStepper(step) {
+      var steps = qsa('.vp-step');
+      for (var i = 0; i < steps.length; i++) {
+        steps[i].classList.remove('active', 'done');
+        if (i < step) steps[i].classList.add('done');
+        else if (i === step) steps[i].classList.add('active');
+      }
+    }
+
+    function updateStats(state) {
+      if (!state) return;
+      if (state.audio_analysis) {
+        setText('vpBpm', state.audio_analysis.bpm || '—');
+        setText('vpDuration', (state.config.estimated_duration_sec || '—') + 's');
+        setText('vpStems', (state.audio_analysis.stems_detected || []).join(', ') || '—');
+      }
+      if (state.emotional_analysis) {
+        setText('vpMood', state.emotional_analysis.overall_mood || '—');
+      }
+      if (state.global_visual_rules) {
+        setText('vpCharacter', state.global_visual_rules.character_reference || '—');
+        setText('vpStyle', state.global_visual_rules.visual_style || '—');
+        renderColors(state.global_visual_rules.color_palette);
+      }
+      if (state.timeline_slices) {
+        renderTimeline(state.timeline_slices);
+        $('vpSliceCount').textContent = state.timeline_slices.length + ' scen';
+      }
+      if (state.critic_feedback) {
+        renderCriticFeedback(state.critic_feedback);
+      }
+    }
+
+    function setText(id, val) {
+      var el = $(id);
+      if (el) el.textContent = val;
+    }
+
+    function renderColors(palette) {
+      var container = $('vpColors');
+      if (!container) return;
+      if (!palette || palette.length === 0) {
+        container.innerHTML = '<span style="font-size:9px;color:var(--text-muted)">—</span>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < palette.length; i++) {
+        html += '<span class="vp-color-dot" style="background:' + palette[i] + '" title="' + palette[i] + '"></span>';
+      }
+      container.innerHTML = html;
+    }
+
+    function renderTimeline(slices) {
+      var container = $('vpTimeline');
+      if (!container) return;
+      if (!slices || slices.length === 0) {
+        container.innerHTML = '<div class="vp-placeholder">Brak scen — uruchom generowanie</div>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < slices.length; i++) {
+        var s = slices[i];
+        html += '<div class="vp-scene">' +
+          '<div class="vp-scene-header">' +
+          '<span class="vp-scene-id">#' + s.slice_id + '</span>' +
+          '<span class="vp-scene-time">' + (s.timestamp || '') + '</span>' +
+          '<span class="vp-scene-section">' + (s.section || '') + '</span>' +
+          '<span class="vp-scene-energy">' + (s.energy || '') + '</span>' +
+          '</div>' +
+          '<div class="vp-scene-action">' + (s.action || '') + '</div>' +
+          '<div class="vp-scene-label">Audio:</div>' +
+          '<div class="vp-scene-prompt">' + (s.audio_cue || '') + '</div>' +
+          '<div class="vp-scene-label">Image Keyframe:</div>' +
+          '<div class="vp-scene-prompt">' + escHtml(s.prompts.image_keyframe || '') + '</div>' +
+          '<div class="vp-scene-label">Video Motion:</div>' +
+          '<div class="vp-scene-prompt">' + escHtml(s.prompts.video_motion || '') + '</div>' +
+          '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderCriticFeedback(feedback) {
+      var container = $('vpCriticFeedback');
+      if (!container) return;
+      if (!feedback || feedback.length === 0) {
+        container.innerHTML = '<div class="vp-placeholder">Brak uwag krytyka</div>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < feedback.length; i++) {
+        var f = feedback[i];
+        var cls = 'vp-critic-item';
+        if (f.severity === 'error') cls += ' error';
+        else if (f.severity === 'warning') cls += ' warning';
+        html += '<div class="' + cls + '">[' + (f.type || '?') + '] ' + (f.message || '') + '</div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function getLyricsAndTags() {
+      var lyrics = '';
+      var tags = [];
+      var editor = $('editor');
+      if (editor) lyrics = editor.value;
+      var studioTab = $('studio-tab');
+      if (studioTab && studioTab.classList.contains('active')) {
+        // Take from studio state
+        if (window.SunoApp && SunoApp.state) {
+          tags = SunoApp.state.selectedTags.slice();
+        }
+      }
+      // If not in studio or no tags, try localStorage backup
+      if (tags.length === 0) {
+        try {
+          var saved = localStorage.getItem('suno_extracted_tags');
+          if (saved) {
+            var parsed = JSON.parse(saved);
+            if (parsed.tags) tags = parsed.tags;
+          }
+        } catch(e) {}
+      }
+      return { lyrics: lyrics, tags: tags };
+    }
+
+    function startGeneration() {
+      var vision = input.value.trim();
+      var data = getLyricsAndTags();
+
+      if (!data.lyrics.trim()) {
+        showToast('Najpierw napisz tekst piosenki w Song Studio', 'error');
+        return;
+      }
+
+      btnStart.style.display = 'none';
+      btnStop.style.display = 'inline-flex';
+      btnExport.disabled = true;
+      btnExportComfy.disabled = true;
+      statusText.textContent = 'Generowanie...';
+
+      // Reset stepper
+      updateStepper(0);
+
+      // Clear previous results
+      setText('vpBpm', '—');
+      setText('vpDuration', '—');
+      setText('vpStems', '—');
+      setText('vpMood', '—');
+      setText('vpCharacter', '—');
+      setText('vpStyle', '—');
+      $('vpSliceCount').textContent = '0 scen';
+      $('vpTimeline').innerHTML = '<div class="vp-placeholder">Generowanie scen...</div>';
+      $('vpCriticFeedback').innerHTML = '<div class="vp-placeholder">Oczekiwanie na analizę...</div>';
+      $('vpColors').innerHTML = '';
+
+      VideoPlanner.start(vision, data.lyrics, data.tags, {
+        onEvent: function(type, data, extra) {
+          if (type === 'status' && data === 'critic_rejected') {
+            statusText.textContent = 'Pętla krytyka #' + extra.iteration;
+          }
+        },
+        onStepStart: function(step, label) {
+          statusText.textContent = label + '...';
+          updateStepper(step);
+        },
+        onStepEnd: function(step, result) {
+          if (result === 'rejected') {
+            statusText.textContent = 'Krytyk: poprawianie...';
+          }
+        },
+        onProgress: function(progress) {
+          // progress.current, progress.total
+        },
+        onComplete: function(state) {
+          btnStart.style.display = 'inline-flex';
+          btnStop.style.display = 'none';
+          btnExport.disabled = false;
+          btnExportComfy.disabled = false;
+          statusText.textContent = 'Gotowe ✓';
+          updateStepper(7);
+          updateStats(state);
+          showToast('Wygenerowano ' + state.timeline_slices.length + ' scen ✓');
+        },
+        onError: function(err) {
+          btnStart.style.display = 'inline-flex';
+          btnStop.style.display = 'none';
+          statusText.textContent = 'Błąd';
+          showToast('Błąd: ' + err.message.substring(0, 60), 'error');
+        }
+      });
+    }
+
+    btnStart.addEventListener('click', startGeneration);
+
+    btnStop.addEventListener('click', function() {
+      VideoPlanner.stop();
+      btnStart.style.display = 'inline-flex';
+      btnStop.style.display = 'none';
+      statusText.textContent = 'Przerwano';
+      showToast('Generowanie przerwane');
+    });
+
+    btnExport.addEventListener('click', function() {
+      var md = VideoPlanner.generateMarkdown();
+      if (!md) { showToast('Brak danych do eksportu', 'error'); return; }
+      var blob = new Blob([md], { type: 'text/markdown' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'music_video_storyboard.md';
+      a.click();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      showToast('Eksportowano storyboard ✓');
+    });
+
+    btnExportComfy.addEventListener('click', function() {
+      var json = VideoPlanner.generateComfyUI();
+      if (!json) { showToast('Brak danych', 'error'); return; }
+      var blob = new Blob([json], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'comfyui_scenes.json';
+      a.click();
+      setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      showToast('Eksportowano ComfyUI ✓');
+    });
+  })();
+
+  /* ── PROJECT PERSISTENCE ── */
+  (function() {
+    var btnSave = $('saveProjectBtn');
+    var btnLoad = $('loadProjectBtn');
+    var btnExport = $('exportProjectBtn');
+    var loadModal = $('loadModal');
+    var loadClose = $('loadModalClose');
+    var projectList = $('projectList');
+    var importBtn = $('importBtn');
+    var importInput = $('importFileInput');
+    var fileInputCreated = false;
+
+    function initStore(cb) {
+      if (!ProjectStore.ready && !ProjectStore._initStarted) {
+        ProjectStore._initStarted = true;
+        ProjectStore.init(function(err) {
+          if (err) { showToast('Baza danych niedostępna: ' + err.message, 'error'); }
+          if (cb) cb(err);
+        });
+      } else if (ProjectStore.ready) {
+        if (cb) cb(null);
+      } else {
+        setTimeout(function() { initStore(cb); }, 200);
+      }
+    }
+
+    function saveCurrent() {
+      initStore(function() {
+        var project = ProjectStore.gatherState();
+        ProjectStore.save(project, function(err, id) {
+          if (err) { showToast('Błąd zapisu: ' + err.message, 'error'); return; }
+          showToast('Zapisano: ' + project.name + ' ✓');
+        });
+      });
+    }
+
+    function renderProjectList() {
+      initStore(function() {
+        ProjectStore.list(function(err, list) {
+          if (err) { projectList.innerHTML = '<div class="val-item val-warn">Błąd ładowania</div>'; return; }
+          if (!list || list.length === 0) {
+            projectList.innerHTML = '<div class="val-item val-info">Brak zapisanych projektów</div>';
+            return;
+          }
+          var html = '';
+          for (var i = 0; i < list.length; i++) {
+            var p = list[i];
+            var date = p.updatedAt ? new Date(p.updatedAt).toLocaleString() : '';
+            var tagCount = p.tags ? p.tags.length : 0;
+            var preview = p.lyrics ? p.lyrics.substring(0, 50).replace(/\n/g, ' ') : '';
+            (function(proj) {
+              html += '<div class="project-list-item" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border-radius:6px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background=\\'var(--surface-hover)\\'" onmouseout="this.style.background=\\'var(--surface)\\">' +
+                '<div style="flex:1;min-width:0;" onclick="(function(){ ' +
+                  'ProjectStore.get(' + proj.id + ', function(err, p) { ' +
+                    'if (p) { ProjectStore.applyState(p); showToast(\\'Załadowano: \\' + p.name); $(\'loadModal\').classList.remove(\'open\'); } ' +
+                  '}); ' +
+                '})()">' +
+                '<div style="font-size:12px;font-weight:600;color:var(--text-primary)">' + escHtml(p.name) + '</div>' +
+                '<div style="font-size:10px;color:var(--text-muted)">' + tagCount + ' tagów · ' + date + '</div>' +
+                (preview ? '<div style="font-size:10px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(preview) + '</div>' : '') +
+                '</div>' +
+                '<button class="icon-btn" style="flex-shrink:0;" title="Usuń" onclick="event.stopPropagation();if(confirm(\'Usunąć projekt \\\'' + escHtml(p.name) + '\\\'?\')){ProjectStore.remove(' + proj.id + ',function(){renderProjectList();showToast(\'Usunięto\');})}">🗑</button>' +
+                '</div>';
+            })(p);
+          }
+          projectList.innerHTML = html;
+        });
+      });
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/\\/g,'\\\\');
+    }
+
+    btnSave.addEventListener('click', saveCurrent);
+
+    btnLoad.addEventListener('click', function() {
+      renderProjectList();
+      loadModal.classList.add('open');
+    });
+
+    loadClose.addEventListener('click', function() { loadModal.classList.remove('open'); });
+    loadModal.addEventListener('click', function(e) { if (e.target === loadModal) loadModal.classList.remove('open'); });
+
+    btnExport.addEventListener('click', function() {
+      var project = ProjectStore.gatherState();
+      ProjectStore.exportJSON(project);
+      showToast('Eksportowano: ' + project.name);
+    });
+
+    importBtn.addEventListener('click', function() {
+      importInput.click();
+    });
+
+    importInput.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      ProjectStore.importJSON(file, function(err, project) {
+        if (err) { showToast('Błąd importu: ' + err.message.substring(0, 60), 'error'); return; }
+        ProjectStore.applyState(project);
+        showToast('Zaimportowano: ' + (project.name || 'bez nazwy'));
+        importInput.value = '';
+        renderProjectList();
+      });
+    });
+
+    // Save on Ctrl+S even before init
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveCurrent();
+      }
+    });
+  })();
+
+  /* ── INTENT INPUT ── */
+  (function() {
+    var input = $('intentInput');
+    var btn = $('intentBtn');
+
+    function resolveIntent() {
+      var text = input.value.trim();
+      if (!text) { showToast('Wpisz opis nastroju, gatunku lub klimatu', 'error'); return; }
+
+      var tokens = text.toLowerCase().split(/[\s,;]+/);
+      var found = [];
+      var seen = {};
+
+      for (var i = 0; i < tokens.length; i++) {
+        var t = tokens[i].replace(/[^a-z0-9#-]/g, '');
+        if (!t || t.length < 2) continue;
+
+        var match = SunoAnalyzer.findTagByText(t);
+        if (match && !seen[match.tag.id]) {
+          found.push(match.tag);
+          seen[match.tag.id] = true;
+
+          var syn = SunoAnalyzer.parseSynergies(match.tag.synergy);
+          for (var s = 0; s < syn.length; s++) {
+            if (!seen[syn[s].tag.id]) {
+              found.push(syn[s].tag);
+              seen[syn[s].tag.id] = true;
+            }
+          }
+        }
+      }
+
+      if (found.length === 0) {
+        // AI fallback
+        var tryAI = function() {
+          btn.textContent = '⟳';
+          var cfg = AIConfig.load();
+          var cats = {};
+          if (typeof CATEGORY_ORDER !== 'undefined') {
+            for (var ci = 0; ci < CATEGORY_ORDER.length; ci++) cats[CATEGORY_ORDER[ci]] = true;
+          }
+          var catList = Object.keys(cats).length > 0 ? Object.keys(cats).join(', ') : 'genre, mood, vocal, instruments, production';
+          var userMsg = AI_PROMPTS_USER.tagIntent
+            .replace('[OPIS]', text)
+            .replace('[GATUNEK]', catList)
+            .replace('[NASTROJ]', catList)
+            .replace('[WOKAL]', catList)
+            .replace('[INSTRUMENTY]', catList)
+            .replace('[PRODUKCJA]', catList);
+
+          AIProvider.send(
+            [{ role: 'user', content: userMsg }],
+            AI_SYSTEM_PROMPTS.tagIntent.content,
+            function(full) {
+              btn.textContent = '🔮';
+              try {
+                var json = JSON.parse(full);
+                if (json.tags && Array.isArray(json.tags) && json.tags.length > 0) {
+                  var applied = 0;
+                  for (var j = 0; j < json.tags.length; j++) {
+                    var tag = SunoAnalyzer.getTagById(json.tags[j]);
+                    if (tag) { SunoApp.toggleTag(tag.id); applied++; }
+                  }
+                  if (json.stylePrompt) {
+                    $('stylePrompt').textContent = json.stylePrompt;
+                    $('stylePrompt').className = 'prompt-text';
+                  }
+                  showToast('AI dobrała ' + applied + ' tagów ✓');
+                  input.value = '';
+                } else {
+                  showToast('AI nie rozpoznała opisu – spróbuj inaczej', 'error');
+                }
+              } catch(e) {
+                showToast('Błąd odpowiedzi AI – spróbuj ponownie', 'error');
+              }
+            },
+            function(err) {
+              btn.textContent = '🔮';
+              showToast('AI niedostępne: ' + err.message.substring(0, 40), 'error');
+            }
+          );
+        };
+        tryAI();
+        return;
+      }
+    }
+
+    btn.addEventListener('click', resolveIntent);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') resolveIntent();
+    });
+  })();
+
+  /* ── Tooltip with synergy chips (hooked via app-logic.js __external) ── */
+  window.__externalShowTooltip = function(e, id) {
+    var tip = $('tooltip');
+    var tag = SunoAnalyzer.getTagById(id);
+    if (!tip || !tag) return false;
+    $('ttName').textContent = tag.name;
+    var catColor = CATEGORY_COLORS[tag.category] || '#888';
+    $('ttCategory').innerHTML = '<span style="color:' + catColor + '">' + tag.category + '</span>';
+    $('ttDescription').textContent = tag.description;
+    $('ttKeywords').innerHTML = tag.keywords && tag.keywords.length > 0 ? '<strong>Keywords:</strong> ' + tag.keywords.slice(0,5).join(', ') : '';
+    $('ttActions').innerHTML = '';
+    var axes = $('ttAxes');
+    axes.innerHTML =
+      '<div class="axis-row"><span class="axis-label" style="color:#ff9100">W</span><div class="axis-track"><div class="axis-fill" style="width:'+tag.weight+'%;background:#ff9100"></div></div><span class="axis-val">'+tag.weight+'</span></div>' +
+      '<div class="axis-row"><span class="axis-label" style="color:#00e676">O</span><div class="axis-track"><div class="axis-fill" style="width:'+tag.organic+'%;background:#00e676"></div></div><span class="axis-val">'+tag.organic+'</span></div>' +
+      '<div class="axis-row"><span class="axis-label" style="color:#00d4ff">B</span><div class="axis-track"><div class="axis-fill" style="width:'+tag.brightness+'%;background:#00d4ff"></div></div><span class="axis-val">'+tag.brightness+'</span></div>';
+    if (tag.synergy) {
+      var synChips = SunoAnalyzer.parseSynergies(tag.synergy);
+      if (synChips.length > 0) {
+        var html = '<strong style="font-size:9px;color:var(--accent-cyan)">Synergia:</strong> ';
+        for (var i = 0; i < synChips.length; i++) {
+          (function(synTag) { html += '<span class="tt-chip" data-sid="' + synTag.id + '">+ ' + synTag.name + '</span> '; })(synChips[i].tag);
+        }
+        $('ttActions').innerHTML = html;
+        $('ttActions').querySelectorAll('.tt-chip').forEach(function(chip) {
+          chip.addEventListener('click', function(e) {
+            e.stopPropagation();
+            SunoApp.toggleTag(this.dataset.sid);
+            window.__externalHideTooltip();
+          });
+        });
+      }
+    }
+    tip.style.display = 'block';
+    window.__externalPositionTooltip(e);
+    return true;
+  };
+
+  window.__externalPositionTooltip = function(e) {
+    var tip = $('tooltip');
+    if (!tip || tip.style.display === 'none') return;
+    var x = e.clientX + 14, y = e.clientY + 10;
+    if (x + 280 > window.innerWidth - 10) x = e.clientX - 280;
+    if (y + 200 > window.innerHeight - 10) y = e.clientY - 200;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  };
+
+  window.__externalHideTooltip = function() {
+    var tip = $('tooltip');
+    if (tip) tip.style.display = 'none';
+  };
+
+  /* ── LYRICS EDITOR ── */
+  (function() {
+    var editor = $('editor');
+    var undoStack = [];
+    var MAX_UNDO = 20;
+    var clipHistory = [];
+    var MAX_CLIPS = 3;
+    var CLIP_KEY = 'suno_clip_history';
+    var climateOpen = false;
+
+    // Load clipboard history
+    try {
+      var saved = localStorage.getItem(CLIP_KEY);
+      if (saved) clipHistory = JSON.parse(saved);
+    } catch(e) {}
+
+    function pushUndo() {
+      undoStack.push(editor.value);
+      if (undoStack.length > MAX_UNDO) undoStack.shift();
+    }
+
+    function undo() {
+      if (undoStack.length === 0) return;
+      editor.value = undoStack.pop();
+      validate();
+    }
+
+    function insertTag(tag) {
+      var start = editor.selectionStart;
+      var end = editor.selectionEnd;
+      pushUndo();
+      var before = editor.value.substring(0, start);
+      var after = editor.value.substring(end);
+      editor.value = before + tag + after;
+      var pos = start + tag.length;
+      editor.selectionStart = editor.selectionEnd = pos;
+      editor.focus();
+      validate();
+    }
+
+    function copyText(text, asPrompt) {
+      navigator.clipboard.writeText(text).then(function() {
+        showToast('Skopiowano ✓');
+        if (!asPrompt) {
+          clipHistory.unshift(text);
+          if (clipHistory.length > MAX_CLIPS) clipHistory.pop();
+          try { localStorage.setItem(CLIP_KEY, JSON.stringify(clipHistory)); } catch(e) {}
+          renderClipHistory();
+        }
+      }).catch(function() {
+        showToast('Nie udało się skopiować', 'error');
+      });
+    }
+
+    function renderClipHistory() {
+      var container = $('clipHistory');
+      if (!container) return;
+      var html = '<span style="color:var(--text-muted);font-size:9px">Schowek:</span>';
+      for (var i = 0; i < clipHistory.length; i++) {
+        var preview = clipHistory[i].substring(0, 30).replace(/\n/g, ' ').replace(/[\[\]]/g, '');
+        (function(idx, txt) {
+          html += '<span class="clip-item" data-idx="' + idx + '" title="Przywróć">↩ ' + preview + '</span>';
+        })(i, clipHistory[i]);
+      }
+      container.innerHTML = html;
+      container.querySelectorAll('.clip-item').forEach(function(el) {
+        el.addEventListener('click', function() {
+          var idx = parseInt(this.dataset.idx);
+          var text = clipHistory[idx];
+          if (text) {
+            pushUndo();
+            editor.value = text;
+            validate();
+            showToast('Przywrócono wersję ze schowka');
+          }
+        });
+      });
+    }
+
+    /* ── STRUCTURE TAGS ── */
+    var STRUCTURE_RE = /\[(Intro|Verse\s*\d*|Pre-Chorus|Chorus|Bridge|Solo|Build|Drop|Break|Breakdown|Instrumental|Hook|Outro|End|Interlude|Climax|Refrain|Post-Chorus|Pre-Drop|Coda|Vamp|Big\s*Finish|Transition)\]/gi;
+
+    var SMART_SYNONYMS = {
+      quiet: 'soft', whisper: 'whispered', dark: 'dark', heavy: 'heavy',
+      distorted: 'distorted', bright: 'bright', warm: 'warm', cold: 'cold',
+      soft: 'soft', gentle: 'gentle', aggressive: 'aggressive', calm: 'calm',
+      deep: 'deep', harsh: 'harsh', smooth: 'smooth', raw: 'raw',
+      airy: 'airy', punchy: 'punchy', tight: 'tight', loose: 'loose',
+      epic: 'epic', dreamy: 'dreamy', sad: 'melancholic', happy: 'joyful',
+      fast: 'fast', slow: 'slow', loud: 'loud', minimal: 'minimal'
+    };
+    var ADJ_ADV = ['resonant','distorted','ambient','clean','heavy','soft','dark','bright','warm','cold','dry','wet','deep','harsh','smooth','aggressive','gentle','minimal','complex','raw','polished','lush','gritty','airy','punchy','tight','loose','epic','cinematic'];
+
+    function runSmartParse(text) {
+      var found = { synonyms: [], patterns: [] };
+      var words = text.toLowerCase().split(/[\s,;.!?()]+/);
+      for (var w = 0; w < words.length; w++) {
+        var word = words[w].replace(/[^a-z]/g, '');
+        if (word && SMART_SYNONYMS[word]) {
+          if (found.synonyms.indexOf(word) === -1) found.synonyms.push(word);
+        }
+      }
+      for (var i = 0; i < words.length - 1; i++) {
+        var a = words[i].replace(/[^a-z]/g, '');
+        var n = words[i+1].replace(/[^a-z]/g, '');
+        if (ADJ_ADV.indexOf(a) >= 0 && n.length > 2 && ADJ_ADV.indexOf(n) < 0) {
+          var pat = a + ' ' + n;
+          if (found.patterns.indexOf(pat) === -1) found.patterns.push(pat);
+        }
+      }
+      return found;
+    }
+
+    var SECTION_TAGS_MAP = {};
+    if (typeof SECTION_TAGS_META !== 'undefined') {
+      SECTION_TAGS_MAP = SECTION_TAGS_META;
+    } else {
+      var tags20 = ['Intro','Verse','Pre-Chorus','Chorus','Bridge','Solo','Build','Drop','Break','Breakdown','Instrumental','Hook','Outro','End','Interlude','Climax','Refrain','Post-Chorus','Pre-Drop','Coda'];
+      for (var i = 0; i < tags20.length; i++) SECTION_TAGS_MAP[tags20[i].toLowerCase()] = { tag: '[' + tags20[i] + ']' };
+    }
+
+    function validate() {
+      var text = editor.value;
+      var len = text.length;
+      var lines = text.split('\n').length;
+      var sections = (text.match(STRUCTURE_RE) || []).length;
+      var caps = (text.match(/\b[A-Z]{4,}\b/g) || []).length;
+
+      $('statChars').textContent = len;
+      $('statSections').textContent = sections;
+      $('statLines').textContent = lines;
+      $('statCaps').textContent = caps;
+
+      // Chunk bar
+      var pctOk = Math.min(100, (len / CHUNK_LIMIT) * 100);
+      var pctOver = Math.max(0, Math.min(100, ((len - CHUNK_LIMIT) / CHUNK_LIMIT) * 100));
+      $('chunkOk').style.width = pctOk + '%';
+      $('chunkOver').style.width = pctOver + '%';
+      $('chunkGap').style.display = len > CHUNK_LIMIT ? 'inline-block' : 'none';
+
+      var borderColor = 'var(--accent-green)';
+      var label = 'Chunk 1: ' + len + '/' + CHUNK_LIMIT + ' znaków';
+      if (len > CHUNK_MAX) { borderColor = 'var(--accent-red)'; label += ' — za długi!'; }
+      else if (len > CHUNK_WARN) { borderColor = 'var(--accent-orange)'; label += ' — podziel na części'; }
+      else if (len > CHUNK_LIMIT) { borderColor = 'var(--accent-purple)'; label += ' — użyj Extend'; }
+      editor.style.borderLeftColor = borderColor;
+      $('chunkLabel').textContent = label;
+
+      var infoColor = len > CHUNK_LIMIT ? 'var(--accent-purple)' : 'var(--accent-green)';
+      $('chunkInfo').innerHTML = len > CHUNK_LIMIT ? '⚠ Extend' : '✓ OK';
+      $('chunkInfo').style.color = infoColor;
+
+      // Smart parse
+      var smart = runSmartParse(text);
+      $('statSmart').textContent = smart.synonyms.length + smart.patterns.length;
+
+      // Validation
+      var v = $('validationList');
+      var html = '';
+
+      if (!text.trim()) {
+        html += '<div class="val-item val-info"><span class="val-icon">◇</span> Wpisz tekst piosenki lub załaduj szablon</div>';
+      }
+      if (text.match(/\[[A-Za-z\s-]+\]/)) {
+        var foundSections = text.match(/\[[A-Za-z\s-]+\]/g) || [];
+        html += '<div class="val-item val-info"><span class="val-icon">◈</span> Sekcje: ' + foundSections.map(function(s){return s.trim();}).join(', ') + '</div>';
+      } else if (text.trim()) {
+        html += '<div class="val-item val-warn"><span class="val-icon">◈</span> Brak tagów struktur – dodaj [Intro], [Verse] itp.</div>';
+      }
+      if (text.match(/\[(Intro|Verse|Chorus|Bridge|Outro)\]/gi)) {
+        html += '<div class="val-item val-ok"><span class="val-icon">✓</span> Główne sekcje struktury wykryte</div>';
+      }
+      if (caps > 3) html += '<div class="val-item val-warn"><span class="val-icon">▲</span> Za dużo ALL CAPS (' + caps + ')</div>';
+      if (text.match(/\([^)]*\)/g)) {
+        var parens = text.match(/\([^)]*\)/g).length;
+        html += '<div class="val-item val-info"><span class="val-icon">( )</span> Kierunki wokalne: ' + parens + '</div>';
+      }
+      if (len > 0 && len < 50) html += '<div class="val-item val-warn"><span class="val-icon">△</span> Tekst jest bardzo krótki</div>';
+
+      // Smart parser found items
+      for (var si = 0; si < smart.synonyms.length; si++) {
+        html += '<div class="val-item val-smart"><span class="val-icon">◆</span> Synonim: "' + smart.synonyms[si] + '" → tag ' + SMART_SYNONYMS[smart.synonyms[si]] + '</div>';
+      }
+      for (var pi = 0; pi < smart.patterns.length; pi++) {
+        html += '<div class="val-item val-smart"><span class="val-icon">◇</span> Wzorzec: ' + smart.patterns[pi] + '</div>';
+      }
+
+      // Coherence check with tags
+      if (SunoApp && SunoApp.state && SunoApp.state.selectedTags.length > 0 && text.trim()) {
+        var analysis = SunoAnalyzer.analyzePrompt(text);
+        if (analysis.foundTags.length > 0) {
+          var selected = SunoApp.state.selectedTags;
+          var overlap = analysis.foundTags.filter(function(ft) {
+            return selected.indexOf(ft.id) >= 0;
+          });
+          if (overlap.length === 0) {
+            html += '<div class="val-item val-warn"><span class="val-icon">⚠</span> Wybrane tagi nie występują w tekście – dodaj słowa kluczowe</div>';
+          } else {
+            html += '<div class="val-item val-ok"><span class="val-icon">✓</span> Spójność tagów z tekstem: +' + overlap.length + ' dopasowań</div>';
+          }
+          if (analysis.unrecognized.length > 0) {
+            html += '<div class="val-item val-info"><span class="val-icon">?</span> Nierozpoznane: ' + analysis.unrecognized.join(', ') + '</div>';
+          }
+        }
+      }
+
+      $('validationList').innerHTML = html;
+    }
+
+    /* ── DEBOUNCED VALIDATION ── */
+    var _valTimer;
+    function debouncedValidate() {
+      clearTimeout(_valTimer);
+      _valTimer = setTimeout(validate, 100);
+    }
+
+    /* ── AI ASSISTANT ── */
+    function aiSend(messages, systemPrompt, onComplete) {
+      var msgs = [];
+      if (systemPrompt) msgs.push({ role: 'system', content: systemPrompt });
+      msgs = msgs.concat(messages);
+      $('aiDot').className = 'adot busy';
+
+      AIProvider.send(msgs,
+        function(chunk, full) {
+          // live streaming could update editor in real-time
+        },
+        function(full) {
+          $('aiDot').className = 'adot online';
+          if (onComplete) onComplete(full);
+        },
+        function(err) {
+          $('aiDot').className = 'adot offline';
+          showToast('Błąd AI: ' + err.message.substring(0, 60), 'error');
+        }
+      );
+    }
+
+    function getClimatePrompt(climate) {
+      return 'Zmień słownictwo i metafory w poniższym tekście, aby pasowały do klimatu: ' + climate + '. Dostosuj język, zachowując strukturę i rytm. Odpowiedz TYLKO zmienionym tekstem, bez komentarzy.';
+    }
+
+    var EXTRACT_SYSTEM_PROMPT = {
+      role: 'system',
+      content: 'Jesteś ekspertem tagów Suno AI. Przeanalizuj podany tekst piosenki i wyodrębnij optymalny zestaw tagów (max 10) z dostępnej biblioteki. Zwróć JASON: { "tags": ["id1","id2",...], "stylePrompt": "opis stylu", "reasoning": "..." }'
+    };
+    var EXTRACT_USER_PROMPT = function(text, availableTags) {
+      return 'Dostępne tagi: ' + availableTags + '\n\nTekst do analizy:\n' + text + '\n\nZwróć JASON z listą tagów.';
+    };
+
+    /* ── EVENT BINDING ── */
+    // Structure tag buttons
+    qsa('.tag-btn[data-tag]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        insertTag(this.dataset.tag + '\n');
+      });
+    });
+
+    // Template loading
+    $('templateSelect').addEventListener('change', function() {
+      var val = this.value;
+      var desc = $('templateSelect').options[this.selectedIndex].text;
+      if (val && typeof STRUCTURE_PATTERNS !== 'undefined') {
+        var tpl = STRUCTURE_PATTERNS.find(function(p) { return p.id === val || p.name === val; });
+        if (tpl) {
+          $('loadTemplateBtn').dataset.templateId = tpl.id;
+        }
+      }
+    });
+
+    function populateTemplates() {
+      var sel = $('templateSelect');
+      if (typeof STRUCTURE_PATTERNS === 'undefined') return;
+      for (var i = 0; i < STRUCTURE_PATTERNS.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = STRUCTURE_PATTERNS[i].id;
+        opt.textContent = STRUCTURE_PATTERNS[i].name + ' (' + STRUCTURE_PATTERNS[i].genre + ')';
+        sel.appendChild(opt);
+      }
+    }
+    populateTemplates();
+
+    $('loadTemplateBtn').addEventListener('click', function() {
+      var id = this.dataset.templateId;
+      if (!id && typeof STRUCTURE_PATTERNS !== 'undefined') {
+        id = STRUCTURE_PATTERNS[0].id;
+      }
+      if (id && typeof STRUCTURE_PATTERNS !== 'undefined') {
+        var tpl = STRUCTURE_PATTERNS.find(function(p) { return p.id === id; });
+        if (tpl && tpl.template) {
+          pushUndo();
+          editor.value = tpl.template;
+          validate();
+          showToast('Załadowano szablon: ' + tpl.name);
+        }
+      }
+    });
+
+    // Editor events
+    editor.addEventListener('input', debouncedValidate);
+    editor.addEventListener('keydown', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z') { e.preventDefault(); undo(); }
+      }
+    });
+    // Alt+number for structure tags
+    for (var n = 1; n <= 9; n++) {
+      (function(num) {
+        document.addEventListener('keydown', function(e) {
+          if ((e.altKey || e.metaKey) && e.key === String(num)) {
+            var btns = qsa('.tag-btn[data-tag]');
+            if (btns[num - 1]) { e.preventDefault(); btns[num - 1].click(); }
+          }
+        });
+      })(n);
+    }
+
+    // Action buttons
+    $('undoBtn').addEventListener('click', undo);
+    $('clearBtn').addEventListener('click', function() {
+      if (editor.value && confirm('Wyczyścić edytor?')) {
+        pushUndo();
+        editor.value = '';
+        validate();
+      }
+    });
+    $('copyBtn').addEventListener('click', function() {
+      if (editor.value) copyText(editor.value, false);
+      else showToast('Brak tekstu do skopiowania', 'error');
+    });
+    $('copyPromptBtn').addEventListener('click', function() {
+      var styleEl = $('stylePrompt');
+      var style = styleEl && !styleEl.classList.contains('placeholder') ? styleEl.textContent : '';
+      var lyrics = editor.value;
+      if (lyrics) {
+        var prompt = style ? style + '\n\n' + lyrics : lyrics;
+        copyText(prompt, true);
+      } else {
+        showToast('Brak tekstu', 'error');
+      }
+    });
+
+    // AI buttons
+    $('aiRhythmBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw napisz tekst', 'error'); return; }
+      pushUndo();
+      aiSend(
+        [{ role: 'user', content: AI_PROMPTS_USER.optimizeRhythm + '\n\n' + editor.value }],
+        AI_SYSTEM_PROMPTS.optimizeRhythm.content,
+        function(full) {
+          editor.value = full;
+          validate();
+          showToast('Rytm zoptymalizowany ✓');
+        }
+      );
+    });
+
+    $('aiAdlibsBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw napisz tekst', 'error'); return; }
+      pushUndo();
+      aiSend(
+        [{ role: 'user', content: 'Wzbogać poniższy tekst piosenki o chórki i ad-liby:\n\n' + editor.value }],
+        AI_SYSTEM_PROMPTS.generateAdlibs.content,
+        function(full) {
+          editor.value = full;
+          validate();
+          showToast('Ad-liby dodane ✓');
+        }
+      );
+    });
+
+    $('aiClimateBtn').addEventListener('click', function() {
+      climateOpen = !climateOpen;
+      $('climateControls').className = 'climate-input' + (climateOpen ? ' open' : '');
+      if (climateOpen) $('climateInput').focus();
+    });
+
+    $('climateSendBtn').addEventListener('click', function() {
+      var climate = $('climateInput').value.trim();
+      if (!climate) { showToast('Wpisz klimat', 'error'); return; }
+      if (!editor.value) { showToast('Najpierw napisz tekst', 'error'); return; }
+      pushUndo();
+      aiSend(
+        [{ role: 'user', content: getClimatePrompt(climate) + '\n\n' + editor.value }],
+        AI_SYSTEM_PROMPTS.adaptVocabulary.content,
+        function(full) {
+          editor.value = full;
+          validate();
+          $('climateInput').value = '';
+          climateOpen = false;
+          $('climateControls').className = 'climate-input';
+          showToast('Słownictwo dopasowane do: ' + climate + ' ✓');
+        }
+      );
+    });
+
+    $('aiExtractBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw napisz tekst', 'error'); return; }
+      var avail = TAG_DATA.slice(0, 200).map(function(t) { return t.id + ': ' + t.name; }).join(', ');
+      aiSend(
+        [{ role: 'user', content: EXTRACT_USER_PROMPT(editor.value, avail) }],
+        EXTRACT_SYSTEM_PROMPT.content,
+        function(full) {
+          try {
+            var json = JSON.parse(full);
+            if (json.tags && Array.isArray(json.tags)) {
+              for (var t = 0; t < json.tags.length; t++) {
+                SunoApp.toggleTag(json.tags[t]);
+              }
+              if (json.stylePrompt) {
+                $('stylePrompt').textContent = json.stylePrompt;
+                $('stylePrompt').className = 'prompt-text';
+              }
+              try { localStorage.setItem('suno_extracted_tags', full); } catch(e) {}
+              showToast('Wyodrębniono ' + json.tags.length + ' tagów ✓');
+            } else {
+              showToast('AI nie zwróciło tagów', 'error');
+            }
+          } catch(e) {
+            showToast('Błąd parsowania odpowiedzi AI', 'error');
+          }
+        }
+      );
+    });
+
+    // Basket toggle
+    $('basketToggle').addEventListener('click', function() {
+      var content = $('basketContent');
+      var isOpen = content.classList.toggle('open');
+      this.classList.toggle('open', isOpen);
+    });
+
+    // Initial render
+    renderClipHistory();
+    validate();
+
+    // Open basket by default if tags selected
+    var checkBasket = function() {
+      if (SunoApp && SunoApp.state && SunoApp.state.selectedTags.length > 0) {
+        $('basketContent').classList.add('open');
+        $('basketToggle').classList.add('open');
+      }
+    };
+    setTimeout(checkBasket, 500);
+  })();
+
+  /* ── OVERRIDE: SunoApp.renderTagBoard + tooltip ── */
+  // Already handled by window.showTooltip override above
+
+  /* ── KEYBOARD SHORTCUTS ── */
+  // Ctrl+S is handled in PROJECT PERSISTENCE section
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+      e.preventDefault();
+      var loadBtn = $('loadProjectBtn');
+      if (loadBtn) loadBtn.click();
+    }
+  });
+
+  /* ── AI STATUS CHECK ── */
+  (function() {
+    var dot = $('aiDot');
+    try {
+      var cfg = AIConfig.load();
+      if (cfg.provider === 'lm-studio') {
+        // Quick check via test
+        dot.className = 'adot';
+      } else if (cfg.apiKey) {
+        dot.className = 'adot online';
+      } else {
+        dot.className = 'adot offline';
+      }
+    } catch(e) { dot.className = 'adot offline'; }
+  })();
+
+  console.log('Suno Song Studio v1.0 — Unified View initialized');
+})();
+</script>
+</body>
+</html>
