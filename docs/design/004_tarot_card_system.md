@@ -1,6 +1,6 @@
 # ADR-004: System Kart Tarotowych — Selekcja Tagów przez Tarot
 
-## Status: Draft
+## Status: Proposed
 
 ## Data: 2026-06-17
 
@@ -108,22 +108,41 @@ System łączy:
 | **Effect**              | ✧      | `\u2727`          | Iskra — efekt, texture          |
 | **Tempo/Energy**        | ▲      | `\u25B2`          | Trójkąt — tempo, dynamika       |
 | **Era/Reference**       | ●      | `\u25CF`          | Punkt w czasie                  |
-| **Custom (AI‑matched)** | ✦      | `\u2726` (z glow) | Gdy tag nie pasuje do kategorii |
+| **Custom (AI‑matched)** | ◈      | `\u25C8` (z glow) | Gdy tag nie pasuje do kategorii |
 
-### 3.5 System Numeracji
+### 3.5 System Numeracji — Dwa Formaty
 
 ```
-Format: [KATEGORIA]-[INDEKS]
-        [SYMBOL_RZYMSKI]
+Format na KARCIE:      [SYMBOL_RZYMSKI]
+Format wewnętrzny:     [KATEGORIA]-[INDEKS]
 
-Przykłady:
-  V-03  (Vocal Style #3)
-  G-12  (Genre #12)
-  M-07  (Mood #7)
-  III   (symbol rzymski - alternatywny zapis)
+Karta tarota pokazuje: VII (rzymski — estetyka)
+Detail Window pokazuje: V-03 (kod — funkcjonalność)
 ```
 
-Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swojej kategorii.
+| Miejsce                 | Format        | Przykład               | Uzasadnienie                  |
+| ----------------------- | ------------- | ---------------------- | ----------------------------- |
+| **Na karcie** (3.2)     | Rzymski       | `VII`, `XII`, `III`    | Estetyka tarota               |
+| **Detail Window** (5.3) | Kod kategorii | `V-03`, `G-12`, `M-07` | Identyfikacja dla użytkownika |
+| **Wewnętrznie** (JS)    | ID tagu       | `"dark"`, `"ambient"`  | Logika aplikacji              |
+
+**Format kodu: `[KATEGORIA]-[INDEKS]`**
+
+| Prefix | Kategoria       | Przykład |
+| ------ | --------------- | -------- |
+| V      | Vocal Style     | V-03     |
+| G      | Genre           | G-12     |
+| M      | Mood            | M-07     |
+| I      | Instrument      | I-05     |
+| P      | Production      | P-02     |
+| S      | Structure       | S-01     |
+| T      | Vocal Technique | T-04     |
+| E      | Effect          | E-08     |
+| B      | Tempo/Energy    | B-06     |
+| R      | Era/Reference   | R-03     |
+| X      | Custom (AI)     | X-01     |
+
+Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swojej kategorii w `tags-data.js`.
 
 ---
 
@@ -131,10 +150,16 @@ Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swo
 
 ```
   ┌──────────┐
-  │  QUEUED  │ ← karta czeka w puli na pojawienie się
+  │  QUEUED  │ ← karta czeka w puli (zarządzana przez BatchFlowManager)
   └────┬─────┘
-       │ fadeInScale + particle assembly (0.8s)
+       │ batch_start → dequeue z QUEUE
        ▼
+  ┌────────────┐
+  │  ENTERING  │ ← particle assemble (iskry składają się w kartę)
+  │             │    czas: 1.0s (assembly 0.8s + reveal glow 0.2s)
+  └──────┬─────┘
+         │ enter_complete
+         ▼
   ┌──────────┐
   │  IDLE    │ ← karta widoczna, unosi się lekko (float)
   └────┬─────┘
@@ -142,16 +167,16 @@ Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swo
   ┌────┴─────┐    ┌──────────────┐
   │  HOVER   │◄──→│  IDLE        │ ← mouseenter / mouseleave
   └────┬─────┘    └──────────────┘
-       │ click
-       ▼
-  ┌──────────┐
-  │ SELECTED │ ← 300ms burst glow, potem...
-  └────┬─────┘
-       │
-       ▼
-  ┌──────────────┐
-  │ DISSOLVING   │ ← rozpad na particle, 1.2s
-  └──────┬───────┘
+       │ click                    │ (inna karta wybrana)
+       ▼                          ▼
+  ┌──────────┐            ┌──────────┐
+  │ SELECTED │            │ DIMMED   │ ← przygaszenie (0.4 opacity)
+  └────┬─────┘            └────┬─────┘
+       │                       │ (inna karta odznaczona / przywrócona)
+       ▼                       ▼
+  ┌──────────────┐        ┌──────────┐
+  │ DISSOLVING   │        │  IDLE    │ ← powrót do normalnego stanu
+  └──────┬───────┘        └──────────┘
          │ particle → spada na stół
          │ karta znika z DOM
          ▼
@@ -159,16 +184,16 @@ Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swo
     │  TOKEN   │ ← pojawia się na workbenchu jako token
     └──────────┘
 
-  (osobna ścieżka)
+  (osobna ścieżka z IDLE)
   ┌──────────┐
-  │  IDLE    │ → czas minął / kliknięto "pomiń" / batch_end
+  │  IDLE    │ → timer (95% czasu batcha) / kliknięto "dalej" / batch_end
   └────┬─────┘
        │
        ▼
   ┌──────────┐
-  │ FADING   │ ← karta się starzeje, przyciemnia
+  │ FADING   │ ← karta się starzeje, przyciemnia (progresywny fade)
   └────┬─────┘
-       │ opacity < 0.5 → DISSOLVING (bez tokena)
+       │ opacity < 0.3 → DISSOLVING (bez tokena — odrzucona)
        ▼
   ┌──────────────┐
   │ DISSOLVING   │ ← rozpad w pył, znika z DOM
@@ -177,11 +202,23 @@ Numeracja jest automatycznie przypisywana na podstawie indeksu tagu w ramach swo
 
 ### 4.1 State: QUEUED
 
-| Właściwość   | Wartość                             |
-| ------------ | ----------------------------------- |
-| Widoczność   | `display: none` lub poza viewportem |
-| Czas trwania | zmienny — do momentu aktywacji bata |
-| Przejście    | natychmiastowe do ENTERING          |
+Karty czekają w kolejce (QUEUE) na pojawienie się w batchu. QUEUE jest zarządzana przez `Batch Flow Manager`.
+
+**Źródło kart:**
+
+- Pula źródłowa = wszystkie tagi z `TAG_DATA` (~249) z wyłączeniem tagów już wybranych na workbenchu
+- Selekcja do batcha: `weighted_random` z istniejącego `suggestion_logic` (spec-kafelki.json)
+- QUEUE pre-fetch: 30 kart (`initial_pool_size`) pobranych przez `SunoAnalyzer.getSuggestedTags([])` przy inicjalizacji
+- Batch 1: 10 kart z najwyższym weight z puli 30
+- Batch 2+: 5 kart z puli, z uwzględnieniem już wybranych tagów (unikanie duplikatów)
+- Gdy pula się wyczerpie: `SunoAnalyzer.getSuggestedTags(selectedTags)` generuje nową pulę 30 kart
+
+| Właściwość   | Wartość                                                                        |
+| ------------ | ------------------------------------------------------------------------------ |
+| Widoczność   | `display: none` — karta istnieje w DOM, ale jest niewidoczna                   |
+| Czas trwania | zmienny — do momentu aktywacji kolejnego batcha                                |
+| Przejście    | natychmiastowe do ENTERING (gdy batch się rozpoczyna)                          |
+| Zarządca     | `BatchFlowManager.nextBatch()` — decyduje która karta z QUEUE trafia do batcha |
 
 ### 4.2 State: IDLE (domyślny)
 
@@ -245,9 +282,34 @@ Particle poruszają się po krzywej 3-segmentowej:
 | Rotation         | Losowa rotacja particle 0-360°                  |
 | Czas trwania     | **1200ms** (całość) + 200ms fade DOM removal    |
 
-**Implementacja:** Canvas overlay lub CSS particle system z JS-driven keyframes.
+**Decyzja implementacyjna:** Canvas 2D + requestAnimationFrame.
 
-**Wariant alternatywny (performance):** Jeśli particle system jest zbyt ciężki — `clip-path` animation + CSS mask.
+**Uzasadnienie:**
+
+- CSS particle system nie udźwignie 800+ particle (10 kart × 80 particle) w 60 FPS
+- Canvas 2D daje pełną kontrolę nad trajektorią, kolorem, rotacją
+- requestAnimationFrame zapewnia synchronizację z vsync
+- Object pooling dla 800+ particle — alokacja raz, reużywanie
+
+**Architektura particle-engine.js:**
+
+```js
+class ParticleEngine {
+  constructor(canvas, { maxParticles = 800, pooling = true })
+
+  // API
+  dissolveCard(cardElement, options)  // rozpad karty w pył
+  assembleCard(position, options)     // składanie karty z iskier
+  burst(position, count, options)     // eksplozja cząsteczek (celebracja)
+
+  // Zarządzanie
+  setPerformanceTier('low'|'medium'|'high')
+  pause() / resume()
+  clear()
+}
+```
+
+**Wariant fallback (gdy WebGL/Canvas niedostępny):** `clip-path` animation + CSS mask jako degradacja. Nie wspiera kolorowania particle, ale zachowuje efekt "rozpadu".
 
 ### 4.6 State: ENTERING — Pojawianie się Karty
 
@@ -261,30 +323,47 @@ Nowa karta pojawia się z iskier/particle składających się w kartę.
 
 **Wariant alternatywny:** `fadeInScale` (0 → 1, 0.8s, `cubic-bezier(0.34, 1.56, 0.64, 1)`) + `blur(4px → 0)`.
 
-### 4.7 State: FADING — Starzenie się Karty
+### 4.7 State: FADING — Starzenie się Karty (względem końca batcha)
 
-Karta, która nie została wybrana przed końcem swojej tury lub batcha, starzeje się.
+Karta, która nie została wybrana, starzeje się **względem końca batcha**, a nie od momentu pojawienia się. Dzięki temu karty z początku gridu nie znikają, zanim użytkownik dojrzy do końca.
 
-| Próg czasu    | Efekt                                            |
-| ------------- | ------------------------------------------------ |
-| Po 8s w IDLE  | `opacity: 0.85 → 0.65`                           |
-| Po 12s w IDLE | `opacity: 0.65 → 0.45`, `brightness: 0.85`       |
-| Po 15s w IDLE | `opacity: 0.45 → 0.25`, `filter: grayscale(30%)` |
-| Po 18s w IDLE | Przejście do DISSOLVING (bez tokena — odrzucona) |
+| Próg (procent czasu batcha) | Efekt                                            |
+| --------------------------- | ------------------------------------------------ |
+| Po 50% czasu batcha         | `opacity: 0.85 → 0.70` — pierwszy znak starzenia |
+| Po 70% czasu batcha         | `opacity: 0.70 → 0.50`, `brightness: 0.85`       |
+| Po 85% czasu batcha         | `opacity: 0.50 → 0.30`, `filter: grayscale(20%)` |
+| Po 95% czasu batcha         | Przejście do DISSOLVING (bez tokena — odrzucona) |
 
-Czas odliczania resetuje się przy HOVER.
+**Przykład dla Batcha 1 (30s):**
+
+- t=15s (50%): pierwszy fade
+- t=21s (70%): drugi fade
+- t=25.5s (85%): trzeci fade
+- t=28.5s (95%): DISSOLVING
+- t=30s: batch definitywnie kończy się → nowy batch
+
+Czas odliczania resetuje się przy HOVER — ponowne najechanie przywraca kartę do 100% czasu batcha na jej pozycji.
+
+**Zabezpieczenie:** Jeśli karta spędziła w IDLE dłużej niż 80% batcha bez żadnego HOVER, przyspieszamy FADING (skrócone progi o połowę) — to zapobiega sytuacji, gdzie nieoglądana karta "wisi" do końca.
 
 ### 4.8 State: DIMMED (karty odrzucone pośrednio)
 
-Gdy użytkownik wybiera kartę, pozostałe karty w batchu delikatnie przygasają:
+Gdy użytkownik wybiera kartę, pozostałe karty w batchu delikatnie przygasają. **DIMMED jest stanem odwracalnym** — jeśli tag z workbencha zostanie usunięty (usuń/cofnij), karta wraca do IDLE.
 
-| Właściwość     | Wartość                                    |
-| -------------- | ------------------------------------------ |
-| Opacity        | `0.4`                                      |
-| Filter         | `brightness(0.6)`                          |
-| Transform      | `scale(0.95)`                              |
-| Czas przejścia | 400ms ease                                 |
-| Czas trwania   | Do momentu rozpoczęcia własnego DISSOLVING |
+| Właściwość     | Wartość                                             |
+| -------------- | --------------------------------------------------- |
+| Opacity        | `0.4`                                               |
+| Filter         | `brightness(0.6)`                                   |
+| Transform      | `scale(0.95)`                                       |
+| Czas przejścia | 400ms ease                                          |
+| Czas trwania   | Do momentu: własnego DISSOLVING LUB powrotu do IDLE |
+
+**Przejścia:**
+
+```
+DIMMED → IDLE: gdy usunięto tag z workbencha, który spowodował DIMMED
+DIMMED → DISSOLVING: gdy timer FADING wygaśnie (odrzucona na stałe)
+```
 
 ---
 
@@ -310,7 +389,7 @@ mouseenter na Detail Window → utrzymuje widoczność (karta też zostaje w HOV
 
 ```
 ┌──────────────────────────────────────────┐
-│  ✦ dark  [V-03]  •  ★★★★☆  synergy      │
+│  ✦ dark  [VII]  •  ★★★★☆  synergy       │
 │  ─────────────────────────────────────── │
 │  "Ciemny, mroczny klimat — podstawa      │
 │   dla gothic, industrial, minor"         │
@@ -363,6 +442,34 @@ dla każdej pary (tag_na_karcie + wybrany_tag):
   → wyświetl jako "Sugerowane tagi"
 ```
 
+**Wymaganie wstępne:** Metoda `computeSynergyStrength()` musi być zaimplementowana w `analyzer-engine.js` przed implementacją tarot-deck. Poniżej specyfikacja metody:
+
+```js
+/**
+ * Oblicza siłę synergii między dwoma tagami (0-100).
+ * @param {Object} tagA - Tag z tags-data.js
+ * @param {Object} tagB - Tag z tags-data.js
+ * @returns {number} 0-100 (0 = konflikt, 100 = idealna synergia)
+ *
+ * Algorytm:
+ *   1. CONFLICT CHECK: jeśli tagi są w konflikcie (ten sam vocal_style,
+ *      przeciwna energia itp.) → return 0
+ *   2. CATEGORY BONUS: jeśli ta sama kategoria → +20
+ *   3. SYNERGY STRING: jeśli tagB występuje w synergy stringu tagA
+ *      (lub odwrotnie) → +40
+ *   4. AXIS PROXIMITY: oblicz odległość na osiach W/O/B
+ *      (weight, organic, brightness):
+ *      distance = |tagA.weight - tagB.weight| + |tagA.organic - tagB.organic|
+ *               + |tagA.brightness - tagB.brightness|
+ *      score = max(0, 40 - distance * 2)
+ *   5. SUMA: conflict_check(0) + category_bonus(20) + synergy(40) + axis(40)
+ *      → clamp(0, 100)
+ *   6. Zwróć wynik zaokrąglony do liczby całkowitej
+ */
+```
+
+Metoda jest kluczowym dependency dla sekcji Zbieżności (5.5) i Przymiotników (5.6).
+
 **Przykład:** Użytkownik ma wybrane `ambient` i `dark`. Najeżdża na `drone`:
 
 - Zbieżność dark ↔ drone: 62% (oba mroczne)
@@ -387,9 +494,17 @@ Masz wybrany: drone
 
 Te sugestie pochodzą z:
 
-1. Synergy tagów powiązanych z `drone` (np. `deep` ma synergy z `drone`)
-2. Popularnych kombinacji w bazie tagów
+1. Synergy tagów powiązanych z `drone` (np. `deep` ma synergy z `drone`) — `SunoAnalyzer.getSuggestedTags([drone])`
+2. Popularnych kombinacji w bazie tagów (comboNames)
 3. AI (jeśli dostępne) — generuje nowe, semantycznie spójne kombinacje
+4. **Modyfikatory z analyzer-engine** — lista `MODIFIERS` (np. "deep", "dark", "ethereal", "industrial") — rozszerzona o nowe entry: "slow", "pulsating", "harmonic", "bright", "warm"
+
+**Kliknięcie `[+tag]` w Detail Window:**
+
+- `[+deep]` → dodaje tag `deep` do workbencha BEZ selekcji karty (symuluje kliknięcie karty)
+- `[+deep] [+drone]` → dodaje OBA tagi jednocześnie (dwa tokeny lądują na workbenchu)
+- Jeśli tag nie ma karty w obecnym batchu → dodaje się bezpośrednio (pomija particle assemble)
+- Jeśli tag ma kartę w batchu → symuluje kliknięcie karty (particle dissolve + token)
 
 ---
 
@@ -551,14 +666,17 @@ Sugerowane tagi:
 ┌────────────────────────────────────────┐
 │ ◆ deep drone       dark + drone        │
 │   "Głęboki, mroczny, ciągły dron"      │
-│   [Dodaj 1 klik] [+deep] [+drone]     │
+│   [➕ Dodaj combo]                     │
 ├────────────────────────────────────────┤
 │ ◆ dark ambient     dark + ambient      │
 │   "Mroczna, przestrzenna atmosfera"    │
-│   [Dodaj 1 klik] [+dark] [+ambient]   │
+│   [➕ Dodaj combo]                     │
 ├────────────────────────────────────────┤
 │ [🔮 Losuj kombinację]                  │
 └────────────────────────────────────────┘
+
+Kliknięcie `[➕ Dodaj combo]` → dodaje WSZYSTKIE tagi z kombinacji do workbencha.
+Pojedyncze tagi można dodać przez kliknięcie `[+tag]` w sekcji "Powiązane tagi".
 ```
 
 ### 8.3 "Losuj Kombinację" — Mechanika
@@ -571,7 +689,14 @@ Przycisk generuje losową kombinację 2-3 tagów z puli:
 4. Jeśli kombo ma nazwę → pokaż nazwę
 5. Jeśli nie → "Custom combo: tagA + tagB"
 
-Każde kliknięcie losuje nową kombinację. Limit: 5 losowań na batch.
+Każde kliknięcie losuje nową kombinację i wyświetla ją jako pierwszy wpis w sekcji "Sugerowane tagi" w Detail Window.
+
+**UX Flow:**
+
+1. Kliknięcie "Losuj" → nowa kombinacja pojawia się na górze listy sugerowanych tagów
+2. Kliknięcie kombinacji → dodaje WSZYSTKIE tagi z combo na workbench jednocześnie
+3. Po 5 losowaniach: przycisk zmienia się na wyłączony z tooltipem "Osiągnięto limit losowań"
+4. Limit resetuje się przy nowym batchu
 
 ---
 
@@ -621,14 +746,26 @@ Każde kliknięcie losuje nową kombinację. Limit: 5 losowań na batch.
 
 ### 10.1 Co się Zmienia
 
-| Element            | Zmiana                                                         |
-| ------------------ | -------------------------------------------------------------- |
-| `ember_container`  | Zastąpiony przez `tarot_container`                             |
-| `floating_embers`  | Usunięty (zastąpiony przez karty)                              |
-| `workbench_tokens` | BEZ ZMIAN — tokeny na stole pozostają takie same               |
-| `atmosphere_layer` | BEZ ZMIAN — tło, scanliny, vigneta pozostają                   |
-| `flow_states`      | Nowe: `tarot_selection` wchodzi między `initial` a `selection` |
-| `suggestion_logic` | BEZ ZMIAN — logika sugerowania tagów pozostaje                 |
+| Element            | Zmiana                                                             |
+| ------------------ | ------------------------------------------------------------------ |
+| `ember_container`  | Zastąpiony przez `tarot_container`                                 |
+| `floating_embers`  | Usunięty (zastąpiony przez karty)                                  |
+| `workbench_tokens` | BEZ ZMIAN — tokeny na stole pozostają takie same                   |
+| `atmosphere_layer` | BEZ ZMIAN — tło, scanliny, vigneta pozostają                       |
+| `flow_states`      | `tarot_selection` ZASTĘPUJE zarówno `selection` jak i `suggestion` |
+| `suggestion_logic` | BEZ ZMIAN — logika sugerowania tagów pozostaje                     |
+
+**Mapowanie flow_states w trybie tarot:**
+
+```
+initial → tarot_selection → prompt_preview → completion
+                │
+                ├─ batch 1: 10 kart (odpowiednik dawnego selection)
+                ├─ batch 2: 5 kart (odpowiednik dawnego suggestion)
+                ├─ batch 3+: 5 kart
+                │
+                └─ po ≥10 tagach → prompt_preview (przerywa batch)
+```
 
 ### 10.2 Nowe Moduły
 
@@ -641,11 +778,40 @@ Każde kliknięcie losuje nową kombinację. Limit: 5 losowań na batch.
 
 ### 10.3 Zmiany w Istniejących Modułach
 
-| Moduł                | Zmiana                                                                           |
-| -------------------- | -------------------------------------------------------------------------------- |
-| `app-logic.js`       | Nowy stan `SunoApp.state.tarotMode` + metody `showNextBatch()`, `dissolveCard()` |
-| `analyzer-engine.js` | Nowa metoda: `generateComboName(tagA, tagB)`                                     |
-| `tags-data.js`       | Nowe pole `comboNames: { "deep+drone": "deep drone" }`                           |
+| Moduł                | Zmiana                                                                                               |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `app-logic.js`       | Nowy stan `SunoApp.state.tarotMode` + metody `showNextBatch()`, `dissolveCard()`                     |
+| `app-logic.js`       | W trybie tarot: wyłączyć `showTooltip()`/`hideTooltip()` — Detail Window zastępuje tooltip w całości |
+| `analyzer-engine.js` | Nowa metoda: `generateComboName(tagA, tagB)` — **patrz specyfikacja poniżej**                        |
+
+**Specyfikacja `generateComboName(tagA, tagB)`:**
+
+```js
+/**
+ * Generuje nazwę kombinacji dwóch tagów.
+ * @param {Object} tagA - Tag z tags-data.js
+ * @param {Object} tagB - Tag z tags-data.js
+ * @returns {string|null} Nazwa combo lub null jeśli nie znaleziono
+ *
+ * Algorytm:
+ *   1. const key = [tagA.id, tagB.id].sort().join('+')
+ *      → np. "drone+ambient" (zawsze alfabetycznie)
+ *   2. Szukaj w comboNames[key] (nowa sekcja w tags-data.js)
+ *   3. Jeśli znaleziono → return nazwa (np. "ambient drone")
+ *   4. Jeśli nie znaleziono → spróbuj odwróconą kolejność
+ *      → comboNames['ambient+drone'] || comboNames['drone+ambient']
+ *   5. Jeśli nadal nie → return null
+ *      → UI wyświetli fallback: "tagA + tagB"
+ *
+ * Wsparcie dla 3 tagów:
+ *   generateComboName3(tagA, tagB, tagC):
+ *     // Szukaj wszystkich 3 permutacji w comboNames
+ *     // Jeśli nie znaleziono → sprawdź pary (najsilniejsza synergia)
+ *     // Ostatecznie: return null
+ */
+```
+
+| `tags-data.js` | Nowe pole `comboNames: { "deep+drone": "deep drone" }` |
 
 ---
 
@@ -664,17 +830,39 @@ Detail window na mobile: zamiast tooltipa — **bottom sheet** lub overlay `posi
 
 ## 12. Dostępność
 
-| Wymóg                   | Implementacja                                                                       |
-| ----------------------- | ----------------------------------------------------------------------------------- |
-| **Keyboard navigation** | Tab przez karty → Enter wybiera → Escape zamyka detail window                       |
-| **Screen reader**       | `role="button"` + `aria-label="Tag: {name}, kategoria: {cat}"`                      |
-| **Reduced motion**      | `prefers-reduced-motion: reduce` → brak particle, fade zamiast dissolve, brak float |
-| **Focus indicator**     | Wyraźna złota ramka na `:focus-visible`                                             |
-| **Kolor**               | Nie polegamy wyłącznie na kolorze — symbole i tekst są wystarczające same w sobie   |
+| Wymóg                   | Implementacja                                                                                                                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Keyboard navigation** | Tab przez karty → Enter wybiera → Escape zamyka detail window                                                                                                                     |
+| **Screen reader**       | `role="button"` + `aria-label="Tag: {name}, kategoria: {cat}"`                                                                                                                    |
+| **Reduced motion**      | `prefers-reduced-motion: reduce` → brak particle, fade zamiast dissolve, brak float                                                                                               |
+| **Focus indicator**     | `outline: 2px solid #ff8800` (amber_glow) + `outline-offset: 2px` na `:focus-visible` — złoto na złocie ma niski kontrast, amber_glow (#ff8800) jest widoczny na ciemnozłotym tle |
+| **Kolor**               | Nie polegamy wyłącznie na kolorze — symbole i tekst są wystarczające same w sobie                                                                                                 |
 
 ---
 
 ## 13. Stany Specjalne
+
+### 13.0 Stany Systemowe
+
+**LOADING — inicjalizacja decku:**
+
+```
+→ Komunikat: "Tasowanie kart..." z animacją migotania
+→ Czas: do momentu załadowania TAG_DATA i inicjalizacji SunoAnalyzer
+→ Particle: wyłączone (oszczędność CPU podczas ładowania)
+→ Jeśli trwa >3s: pokaż pasek postępu
+→ Automatyczne przejście do Batch 1 gdy gotowe
+```
+
+**ERROR — awaria inicjalizacji:**
+
+```
+→ Komunikat: "Nie udało się załadować kart"
+→ Przycisk: "Spróbuj ponownie" (retry)
+→ Jeśli SunoAnalyzer niedostępny: "Silnik analizy tagów nie odpowiada"
+→ Jeśli Canvas/WebGL niedostępny: przełącz na fallback (clip-path)
+→ Particle: degradacja do CSS-only (brak Canvas)
+```
 
 ### 13.1 Pusty Batch (brak kart do pokazania)
 
@@ -689,16 +877,31 @@ Detail window na mobile: zamiast tooltipa — **bottom sheet** lub overlay `posi
 ```
 → Automatyczny koniec batcha (nie czeka na timer)
 → Krótka celebracja (glow wave)
-→ Następny batch lub prompt_preview
+→ Jeśli workbench ma ≥10 tagów → prompt_preview (pomija Batch 2+)
+→ Jeśli workbench ma <10 tagów → następny batch
 ```
+
+**Reguła: ≥10 tagów → prompt_preview. Niezależnie od batcha.**
+Batch 2+ służy WYŁĄCZNIE do osiągnięcia minimum 3 tagów (jeśli user wybrał mało).
+Jeśli user wybrał 10/10 w Batchu 1 → pomiń Batch 2+ → prompt_preview.
+Maksymalnie 15 tagów na stole — dalsze karty nie są oferowane.
 
 ### 13.3 Przywracanie Karty z Workbencha
 
 ```
 → Kliknięcie tokena na stole → token się rozświetla
-→ Opcja: "usuń" (token znika) vs "cofnij do kart" (karta pojawia się z powrotem w batchu)
+→ Opcja: "usuń" (token znika) vs "cofnij do kart"
 → Cofnięcie: token → particle unoszą się → karta assemblowana w przestrzeni
 ```
+
+**Zasady przywracania:**
+
+- Karta wraca na SWOJĄ ORYGINALNĄ POZYCJĘ w gridzie (zapisaną w `data-position`)
+- Dołącza do AKTUALNEGO batcha (nie tworzy nowego)
+- Timer FADING: reset do pełnego czasu pozostałego w batchu
+- Może być ponownie wybrana (1-click cycle — wybierz → odrzuć → wybierz)
+- Jeśli batch już zakończony → karta dołącza do NASTĘPNEGO batcha
+- Jeśli workbench osiągnął 15 tagów → opcja "usuń" jest niedostępna (trzeba usunąć inny token)
 
 ---
 
