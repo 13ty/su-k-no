@@ -205,6 +205,125 @@
   padding: 16px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
   font-family: Georgia, "Times New Roman", serif;
+  pointer-events: auto;
+}
+
+.tarot-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tarot-detail-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tarot-gold);
+  margin: 0;
+  text-shadow: 0 0 8px var(--tarot-glow-soft);
+}
+
+.tarot-detail-description {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.tarot-detail-convergence {
+  margin-bottom: 12px;
+}
+
+.tarot-detail-convergence-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.tarot-detail-convergence-bar .bar-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 16px;
+}
+
+.tarot-detail-convergence-bar .bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tarot-detail-convergence-bar .bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 600ms ease;
+}
+
+.tarot-detail-convergence-bar .bar-score {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  min-width: 24px;
+  text-align: right;
+}
+
+.convergence-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.combos-label,
+.selected-tags-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+
+.tarot-detail-combos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.combo-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  color: var(--tarot-gold);
+}
+
+.tarot-detail-selected-tags {
+  margin-top: 8px;
+}
+
+.selected-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.selected-tag-chip {
+  font-size: 9px;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .tarot-detail-category {
@@ -289,6 +408,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .tarot-card.state-queued {
+    opacity: 0;
+    transform: scale(0.6) translateY(20px);
+  }
+
+  .tarot-card.state-entering {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition:
+      transform 0.35s ease,
+      opacity 0.35s ease;
+  }
+
   .tarot-card.state-idle {
     animation: none;
   }
