@@ -1,0 +1,310 @@
+## 🌙 **Wizja Aplikacji: Symfonia Kart Tarotowych**
+
+### **Moment Pierwszego Spotkania — „Kiedy Iskra Zaczęła Tańczyć”**
+
+**Ekran startowy:**
+- Ciemne tło (deep midnight blue with subtle star field)
+- Centralnie umieszczona, pulsująca etykieta: „Wybierz karty, które harmonizują twoją muzykę”
+- Pod nią, delikatna animacja: 10 kart tarota pojawia się z iskrami, które składają się w pełne karty, jedna po drugiej, z 200ms odstępem.
+
+**Pierwsze interakcje użytkownika:**
+- Karta #1 (★ „dark”) pojawia się, unosi się lekko, delikatnie migocze
+- Karta #2 (☽ „ambient”) pojawia się, jej symbol pulsuje delikatnie
+- Karta #3 (♢ „drone”) pojawia się z subtelnym złotym borderem
+
+**Kiedy użytkownik najeżdża na kartę #2:**
+- Karta rośnie (scale 1.08), jej symbol migocze mocniej
+- Detal window pojawia się poniżej, pokazując pełny opis tagu: „Ciemny, mroczny klimat — podstawa dla gothic, industrial, minor”
+- Paski zbieżności pojawiają się: ←→ ambient: ████░░░░░░ 38% ←→ dark: █████████░ 91%
+- Sugestie kombinacji: „deep drone” (dark + ambient) — kliknij, by dodać
+
+**Kiedy użytkownik kliknie kartę #2:**
+- Karta wybucha w złotą eksplozję (burst glow), jej symbol migocze intensywniej
+- Karta rozpada się na 42 cząsteczki (każda z kolorem zaczerpniętym z jej złotego symbolu)
+- Cząsteczki lecą po krzywej 3-segmentowej: eksplozja → unoszenie → zanikanie (1.2s total)
+- W tym samym momencie, karta #1 i #3 przygaszają (opacity 0.4) — DIMMED efekt
+- Na workbenchu pojawia się nowy token: **ambient** (ciemnozlote tło, gold border, text glow)
+
+**Kiedy użytkownik klika kartę #3:**
+- Karta #3 wybucha, rozpada się na 38 cząsteczki (ciemnozłote, antracytowe)
+- Token **drone** ląduje na workbenchu, odbija się (bounce 4px) i stabilizuje się
+- Zbieżność tagów na workbenchu aktualizuje się: **ambient + drone = deep drone** (pokaż pasek zbieżności 85%)
+
+**Kiedy użytkownik klika kartę #1:**
+- Karta #1 wybucha, jej cząsteczki są ciemnopurpurowe z białymi iskrami (symbol ★)
+- Token **dark** ląduje na workbenchu
+- Zbieżność: **dark + drone = dark drone** (pokaż pasek zbieżności 72%)
+
+**Kiedy użytkownik klika „dalej” (gdy są już 3 tagi):**
+- Niewybrane karty #4-#10 zaczynają FADING (przyciemnienie, 400ms)
+- Potem, sekwencyjnie, każda karta rozpada się w pył (staggered dissolve wave)
+- Po ostatniej karcie, krótka pauza (500ms, pustka)
+- Pojawia się Batch 2: 5 nowych kart (★ „ethereal”, ♢ „reverb”, ♪ „female-vocal”, ☽ „dreamy\", ⚙ „electronic”)
+
+**Kiedy użytkownik najeżdża na kartę #5 (ethereal):**
+- Detail window pokazuje: „Eteryczny, nieziemski klimat — podstawa dla female-vocal, reverb, dreamy”
+- Zbieżność: ←→ ethereal: ██████████ 95% ←→ female-vocal: ██████░░░░ 88%
+- Sugestie kombinacji: „ethereal female-vocal” (ethereal + female-vocal) — kliknij, by dodać
+
+**Kiedy użytkownik klika kartę #5:**
+- Karta rozpada się na 36 perłowych cząsteczek (jasnozłote, błękitne)
+- Token **ethereal** ląduje na workbenchu
+- Zbieżność: **ethereal + female-vocal = ethereal female-vocal** (pokaż pasek zbieżności 94%)
+
+**Kiedy użytkownik klika „dalej” (gdy są już 5 tagów):**
+- Batch 2 kończy się, Batch 3 pojawia się (♢ „synth”, ♪ „whisper\", ⚙ „drum-machine”, ★ „cinematic”, ☽ „ambient”)
+
+**Kiedy użytkownik klika „generuj” (gdy są już 10 tagów):**
+- Workbench rozszerza się do 14vh, tokeny pozostają, ale nad nimi pojawia się podgląd promptu (monospace, gold glow)
+- CTA „generuj” staje się mocno podświetlone, pulsujące
+- Kiedy użytkownik klika „generuj”:
+  - Wszystkie tokeny na workbenchu migoczą intensywniej (gold burst)
+  - 40 cząsteczek eksplozji (złote, jasnozłote, błękitne) rozprzestrzenia się w górę
+  - Prompt jest generowany i wyświetlany w pełni widocznym obszarze
+  - Pojawiają się przyciski „Kopiuj” i „Reset”
+
+---
+
+### **Dźwięk i Atmosfera — „Muzyczna Symfonia”**
+
+**Podkład dźwiękowy:**
+- Subtle, ambientowe brzmienie (drone, field-recording) — słyszalne, ale nie przerywające
+- Delikatne, syntezowane dźwięki „iskrzenia” przy każdym particle spawn
+- Burst dźwiękowy przy każdym DISSOLVING (metallic, explosive)
+- Dźwięk „landing” przy każdym tokenie na workbenchu (bounce sound)
+- Eksplozja „celebration” przy generowaniu promptu (choral + synth)
+
+**Feedback dźwiękowy:**
+- HOVER: delikatny, wysokotonowy dźwięk „whoosh”
+- SELECTED: mocny burst dźwiękowy + dźwięk „explosion”
+- DISSOLVING: metallic „crash” + echo
+- ENTERING: ascendant synth melody (każda karta ma unikalną melodię)
+- FADING: subtelne „fade out” (tonowanie)
+
+---
+
+### **Wizualna Estetyka — „Art Deco z Mistycyzmem”**
+
+**Paleta kolorów:**
+- **Tło:** #0a0a05 (deep midnight) z gradientem #2a1f0a → #1a1a0f
+- **Złoto:** #ffcc00 (bright), #e6a800 (primary), #cc8800 (accent), #996600 (dim)
+- **Amber:** #ff8800 (glow), #ff6600 (ember), #662200 (dark ember)
+- **Drewno:** #5c3d1a (light), #3e2812 (mid), #2a1a0a (dark)
+
+**Czcionki:**
+- **Serif:** Georgia, Times New Roman — dla nazw tagów, opisów
+- **Mono:** Consolas, Roboto Mono — dla kodów promptu, liczników
+- **Display:** Georgia — dla logo, nagłówków
+
+**Efekty specjalne:**
+- **Glow:** Gold glow na hover, burst glow na selected, continuous pulse na entering
+- **Particle:** Canvas-based z color sampling z karty
+- **Float:** CSS animation z Y range 8-20px, 5-8s duration
+- **Twinkle:** Co 3-7s delikatne mrugnięcie gold opacity
+- **CRT curvature:** Subtle radial gradient na tle
+
+---
+
+### **Przepływ Użytkownika — „Od Zagadki do Rozwiązania”**
+
+**Etap 1: Odkrywanie (0-2s)**
+- User widzi 10 kart, unoszących się w przestrzeni
+- Karty migoczą, lekko pulsują
+- CTA „dalej” jest wyłączone (nie ma wybranych tagów)
+
+**Etap 2: Eksploracja (2-15s)**
+- User najeżdża, czyta, wybiera
+- Detail window pokazuje kontekst i sugestie
+- Zbieżność tagów pokazuje harmonizację
+- User może „przeskakiwać” między kartami (hover resetuje timer FADING)
+
+**Etap 3: Kolekcja (15-25s)**
+- User ma 3-10 tagów na workbenchu
+- Tokeny „lądowały” na stole, odbijały się
+- User może „przywrócić” karty z workbenchu (klik token → particle ascent → karta wraca do batchu)
+
+**Etap 4: Przegląd (25-30s)**
+- Kiedy user ma ≥10 tagów, workbench rozszerza się
+- Podgląd promptu pokazuje, jak tagi układają się w muzykę
+- CTA „generuj” jest aktywny, pulsujący
+
+**Etap 5: Celebrowanie (30-35s)**
+- Eksplozja cząsteczek, muzyczny burst dźwiękowy
+- Prompt gotowy do skopiowania
+- User może „kopiować” lub „resetować” (starts over z nowym batchem)
+
+---
+
+### **Tryb Full-Screen — „Bezkresne Zapatrywanie”**
+
+**Kiedy użytkownik klika „Rozszerz na pełny ekran”:**
+- Workspace rozszerza się do pełnego ekranu
+- Atmosphere layer powiększa się (większe particles, intensywniejszy glow)
+- Workbench przesuwa się w dół (14vh → 20vh)
+- Karty powiększają się (scale 1.2) i unosią wyżej (Y range 20-40px)
+
+**W trybie full-screen:**
+- Batch 1: 12 kart (2 kolumny, 3 rzędy)
+- Batch 2: 6 kart (3 kolumny, 2 rzędy)
+- Batch 3: 6 kart (3 kolumny, 2 rzędy)
+- Limit tagów: 15 (więcej przestrzeni na tokeny)
+
+---
+
+### **Tryb mobilny — „Dotyk i Harmonizacja”**
+
+**Kiedy użytkownik na mobile:**
+- Karty: 2 kolumny, 3 rzędy = 6 kart na batch
+- Detail window: bottom sheet (position: fixed; bottom: 0; height: 60vh)
+- Particle system: light (10-15 particles per card)
+- Float animation: disabled (performance)
+- Hover: tap-to-expand (karta wypełnia ekran, detail window slide up)
+
+**Mobile UX:**
+- Tap na kartę → karta wypełnia ekran → detail window slide up
+- Tap „Dodaj” w detail window → karta wraca do batchu (animation reverse)
+- Tap „dalej” → batch kończy się, następny batch pojawia się
+
+---
+
+### **Tryb „Deep Focus” — „Tylko Muzyka”**
+
+**Kiedy użytkownik klika „Tryb Deep Focus”:**
+- Tło: ciemne, bez particle, bez animacji
+- Karty: pojawiają się z fadeInScale, bez float, bez twinkle
+- Detail window: minimal, tylko nazwa tagu + krótki opis
+- Workbench: stałe, bez celebration
+- CTA: tylko „generuj” (dalej ukryte)
+
+**Purpose:** Użytkownik może szybko zebrać 10 tagów bez rozpraszania.
+
+---
+
+### **Moment „Aha!” — „Kiedy Wszystko Pasuje”**
+
+**Kiedy użytkownik ma zestaw tagów, które idealnie pasują:**
+- Zbieżność tagów pokazuje 95-100% overlap
+- Sugestie kombinacji pokazują gotowe pary/trojki
+- Kiedy user klika „Losuj kombinację”, system sugeruje „ethereal female-vocal ambient”
+- User klika kombinację → wszystkie 3 tagi lądują na workbenchu jednocześnie
+- Paski zbieżności pokazują „perfekcyjne dopasowanie”
+- Prompt preview pokazuje: „Eteryczny, kobiecy wokal + ambient = ethereal female-vocal ambient”
+
+**Celebration:**
+- Wszystkie tokeny pulsują intensywniej (gold burst)
+- 60 cząsteczek eksplozji (perłowe, złote, błękitne)
+- Muzyka: short synth melody (major chord)
+- CTA „generuj” zmienia się na „✨ Idealne! ✨”
+
+---
+
+### **Moment „Reset” — „Kiedy Wszystko Nie Pasuje”**
+
+**Kiedy użytkownik ma zestaw tagów, które są w konflikcie:**
+- Zbieżność tagów pokazuje 0-20% overlap
+- Sugestie kombinacji pokazują „kompatybilne alternatywy”
+- System sugeruje „Jeśli chcesz harmony, spróbuj X + Y”
+- User klika sugestię → tagi zastępują istniejące na workbenchu
+- Paski zbieżności aktualizują się do 80-95%
+
+**Feedback:**
+- Tokeny, które zostają usunięte, rozpływają się w pył (cząsteczki)
+- Nowe tokeny, które lądują, wybuchają w kolorowe eksplozje
+- Muzyka: minor chord + reverb
+
+---
+
+### **Wizja końcowa — „Symfonia, Którą Tworzysz”**
+
+Aplikacja nie jest tylko „builderem promptów” — jest **kompozytorem muzycznym**, który pomaga użytkownikowi **odkryć harmonie**, które istnieją w ich muzyce.
+
+**Kiedy użytkownik opuszcza aplikację z finalnym promptem:**
+- Prompt jest zapisywany w historii
+- User może „Wrócić do kart” i zobaczyć, jakie karty były wybrane
+- User może „Losować nową kombinację” z istniejących tagów
+- User może „Zapisz preset” dla przyszłych sesji
+
+**Metafora przewodnia:** Użytkownik nie „pisze promptu” — **układa karty symfonii**, która później zostanie wykonana przez AI. Każda karta to potencjalny dźwięk, ogniwo, motif. Kiedy użytkownik wybiera karty, słyszy, jak symfonia zaczyna się kształtować.
+
+**Emocjonalna podróż:**
+1. **Ekscytacja** (pierwsze karty pojawiają się)
+2. **Zagadka** (czytaj znaczenie kart)
+3. **Entuzjazm** (karty wybuchają, tokeny lądują)
+4. **Zadowolenie** (zbieżność tagów pokazuje harmonię)
+5. **Dum** (prompt gotowy, celebration)
+6. **Gotowość do więcej** (reset, nowa symfonia)
+
+---
+
+### **Dane techniczne — „Jak to działa pod maską”**
+
+**Architektura:**
+```
+┌─────────────────────────────────────────────────────┐
+│  UI Layer (React/Vue)                               │
+│  ├─ Card Component (tarot-deck.js)                   │
+│  ├─ DetailWindow Component (tarot-detail-window.js) │
+│  ├─ ParticleSystem (tarot-particle.js)              │
+│  └─ ConvergenceEngine (tarot-convergence.js)       │
+├─────────────────────────────────────────────────────┤
+│  Data Layer                                            │
+│  ├─ SunoAnalyzer (existing)                          │
+│  ├─ TagsData (existing)                              │
+│  └─ ProjectStore (new)                              │
+├─────────────────────────────────────────────────────┤
+│  Audio Layer (Web Audio API)                         │
+│  ├─ Background ambience                               │
+│  ├─ Interaction sounds                               │
+│  └─ Celebration music                                │
+└─────────────────────────────────────────────────────┘
+```
+
+**Particle System Implementation:**
+- **Renderer:** Canvas 2D (requestAnimationFrame)
+- **Physics:** Verlet integration (lightweight, 60fps)
+- **Color sampling:** Offscreen canvas readPixels()
+- **Pooling:** Object pooling dla 800+ particle
+- **Performance:** Resize na mobile (10 particles), high-end desktop (60 particles)
+
+**Animation Pipeline:**
+```
+Card Enter → CSS keyframes (fadeInScale) + Canvas particles (assembly)
+Card Hover → CSS transform + JS glow effects
+Card Select → JS burst + Canvas explode
+Card Dissolve → Canvas particle system (3 phases)
+Card Fade → CSS opacity + blur
+```
+
+**Audio Pipeline:**
+```
+Background ambience → AudioContext, looped, low volume
+Interaction sounds → AudioContext, short, spatial
+Celebration → Synth sequence, reverb, spatial
+```
+
+**Performance Targets:**
+- **60 FPS** na desktop (high-end)
+- **45 FPS** na tablet (medium)
+- **30 FPS** na mobile (low-end, reduced particles)
+
+---
+
+### **Podsumowanie — „Co Zyskuje Użytkownik”**
+
+**W przeciwieństwie do tradyonalnego tag selector:**
+- **Wizualny, immersywny, muzyczny** — user czuje, że „tworzy muzykę”
+- **Particle effects** — każda interakcja jest odczuwalna
+- **Zbieżność tagów** — user widzi, jak tagi współgrają
+- **Sugestie kombinacji** — user dostaje pomocne pomysły
+- **Animacje batch flow** — user widzi, jak karty „umierają” i „odradzają się”
+- **Celebration** — user czuje satysfakcję z finalnego promptu
+
+**Kiedy user kończy sesję:**
+- Ma prompt, który brzmi jak „symfonia”
+- Ma wizualną historię (karty, które wybrał)
+- Ma emocjonalną podróż (ekscytacja → zadowolenie)
+- Jest gotowy do kolejnej iteracji
+
+---
+
+**Podsumowanie:** Aplikacja transformuje „builder promptów” w **interaktywną, muzyczną symfonię kart tarota**, gdzie użytkownik nie tylko wybiera tagi, ale **tworzy muzyczną kompozycję**, która później zostanie wygenerowana przez AI. Każda karta to potencjalny dźwięk, każda selekcja to akord, każda kombinacja to motyw.

@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "name": "su(K)no",
+    "version": "1.0.0",
+    "description": "Muzyczna symfonia kart tarota — cieply, atmosferyczny interfejs do budowania promptow z unoszacymi sie kartami tarota i drewnianym stolem roboczym",
+    "design_inspiration": "Ognisko w nocy — unoszace sie iskry, uzytkownik zbiera tagi na drewnianym stole",
+    "session": "2026-06-17",
+    "status": "gotowe do implementacji",
+    "canvas_size": {
+      "width": "100vw",
+      "height": "100vh",
+      "min_width": "360px",
+      "min_height": "600px"
+    }
+  },
+
+  "theme": {
+    "name": "emberglow",
+    "colors": {
+      "background_deep": "#0a0a05",
+      "background_mid": "#1a1a0f",
+      "background_amber": "#2a1f0a",
+      "text_primary": "#f5e6c8",
+      "text_secondary": "#c4a87c",
+      "text_muted": "#7a6b4e",
+      "text_technical": "#e0d5b8",
+      "gold_bright": "#ffcc00",
+      "gold_primary": "#e6a800",
+      "gold_accent": "#cc8800",
+      "gold_dim": "#996600",
+      "amber_light": "#ffaa33",
+      "amber_glow": "#ff8800",
+      "ember_core": "#ff6600",
+      "ember_mid": "#cc4400",
+      "ember_dim": "#662200",
+      "wood_light": "#5c3d1a",
+      "wood_mid": "#3e2812",
+      "wood_dark": "#2a1a0a",
+      "wood_highlight": "#7a5530",
+      "wood_grain_shadow": "#1a0f05",
+      "success_green": "#7aaa55",
+      "error_red": "#aa4433",
+      "overlay_dark": "rgba(10, 10, 5, 0.85)",
+      "glow_white_warm": "rgba(255, 230, 200, 0.08)"
+    },
+    "typography": {
+      "font_serif": "'Georgia', 'Times New Roman', serif — dla etykiet, naglowkow, tagow",
+      "font_mono": "'Courier New', 'Consolas', 'Roboto Mono', monospace — dla promptu, licznikow",
+      "font_display": "'Georgia', serif — logo, tytuly",
+      "sizes": {
+        "logo": "clamp(1.5rem, 3vw, 2.5rem)",
+        "heading": "clamp(1.2rem, 2vw, 1.8rem)",
+        "tag_label": "clamp(0.75rem, 1.1vw, 1rem)",
+        "tag_label_selected": "clamp(0.85rem, 1.3vw, 1.1rem)",
+        "body": "clamp(0.85rem, 1.2vw, 1rem)",
+        "small": "clamp(0.65rem, 0.9vw, 0.8rem)",
+        "technical": "clamp(0.7rem, 1vw, 0.9rem)",
+        "button": "clamp(0.8rem, 1.1vw, 1rem)"
+      }
+    },
+    "effects": {
+      "scanlines": "opacity 0.03, repeating-linear-gradient, z-index 998",
+      "vignette": "radial-gradient, transparent 60% → rgba(10,10,5,0.9) 100%, z-index 999",
+      "crt_curvature": "radial-gradient, transparent 65% → rgba(0,0,0,0.25) 100%, z-index 997"
+    }
+  },
+
+  "layout": {
+    "zones": [
+      {
+        "id": "the-space",
+        "name": "Przestrzen",
+        "description": "Gorna, ciemna, atmosferyczna strefa. Tu unosza sie tagi-sugestie jak iskry/embery.",
+        "position": "top 0, left 0",
+        "size": "100vw x calc(100vh - 10vh)",
+        "z_index": 1,
+        "background": "linear-gradient(180deg, #0a0a05 → #120e06 → #1a1a0f → #1f1808)",
+        "overflow": "hidden",
+        "children": [
+          "atmosphere_layer (ambient glow)",
+          "ember_container (floating tags)"
+        ]
+      },
+      {
+        "id": "the-workbench",
+        "name": "Stół Roboczy",
+        "description": "Dolna 1/6 ekranu. Drewniana powierzchnia, na której leżą wybrane tagi jako swiecace tokeny.",
+        "position": "bottom 0, left 0",
+        "size": "100vw x 10vh (min 80px)",
+        "z_index": 30,
+        "background": "linear-gradient(180deg, #3e2812 → #2a1a0a → #1a0f05)",
+        "border_top": "2px solid rgba(204,136,0,0.2)",
+        "box_shadow": "0 -4px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,230,200,0.05)",
+        "children": [
+          "wood_grain_overlay (tekstura drewna)",
+          "workbench_edge_highlight (swiatlo na krawedzi)",
+          "left_leg / right_leg (nogi stolu)",
+          "selected_tags_container (wybrane tagi jako tokeny)"
+        ]
+      }
+    ]
+  },
+
+  "tag_specs": {
+    "tarot_cards": {
+      "description": "Unoszace sie karty tarota jako tagi-sugestie — mistyczna selekcja partii kart",
+      "count_visible": 10,
+      "count_after_selection": 5,
+      "sizing": "clamp(100px, 14vw, 180px)",
+      "aspect_ratio": "2.75 : 4.75",
+      "appearance": "ciemne zloto, pergaminowe tlo, ornamentowane krawedzie, przezroczystosc 0.85, glow na hover",
+      "states": {
+        "QUEUED": "opacity 0, transform: scale(0.8) translateY(20px) — czeka na wejscie",
+        "IDLE": "opacity 0.85, delikatny float, cien gold glow",
+        "HOVER": "opacity 1.0, scale 1.06, mocny glow, border gold, podniesiona",
+        "SELECTED": "leci do workbench, glow burst, znika z przestrzeni, trail particle",
+        "DISSOLVING": "opacity → 0, particle rozpad, 0.6s",
+        "FADING": "opacity → 0.15, blur(1px), 0.5s — dla odrzuconych",
+        "DIMMED": "opacity 0.2, blur(2px), brak glowa — nieaktywne karty",
+        "ENTERING": "fadeInUp, 0.6s, staggered entry co 80ms"
+      },
+      "animation": {
+        "float": "plynie w gore i na boki, 5-10s, eases, Y range 10-25px, X range 5-12px",
+        "twinkle": "co 3-7s delikatne mrugniecie zlotego ornamentu",
+        "staggered_entry": "fadeInUp z przesunieciem, 0.6s, stagger co 80ms",
+        "staggered_dissolve": "fadeOut z particle rozpadem, 0.5s, stagger co 60ms",
+        "selection_flight": "leci po krzywej do workbench, 0.6s, trail particle + glow burst"
+      }
+    },
+    "workbench_tokens": {
+      "description": "Wybrane tagi jako swiecace tokeny/rune na stole",
+      "sizing": "auto width, min 64px, height clamp(36px, 5vh, 56px)",
+      "appearance": "ciemnozlote tlo, gold border, text glow, box-shadow glow",
+      "animation": {
+        "landing": "spada z gory, odbija sie (bounce 4px, decay 0.6)",
+        "hover": "scale 1.05, intensywniejszy glow",
+        "removal": "fadeOutUp, 0.3s do gory i znika"
+      }
+    }
+  },
+
+  "flow_states": [
+    {
+      "id": "initial",
+      "description": "Pierwsze ladowanie — ~10 tagow unosi sie w przestrzeni. Stol pusty. Przycisk 'dalej' wylaczony.",
+      "workbench": "pusty, tekst 'Kliknij karty tarota, by zebrac prompt...'"
+    },
+    {
+      "id": "tarot_selection",
+      "description": "Uzytkownik przeglada i wybiera partie kart tarota — karty unosza sie, po kliknieciu leca na stol. Faza mistycznej selekcji.",
+      "workbench": "wypelnia sie wybranymi kartami jako tokenami",
+      "cta": "dalej (aktywny, swiecacy)"
+    },
+    {
+      "id": "selection",
+      "description": "Uzytkownik klika tagi. Wybrane leca na stol. 'dalej' wlacza sie.",
+      "workbench": "wypelnia sie tokenami",
+      "cta": "dalej (aktywny, swiecacy)"
+    },
+    {
+      "id": "suggestion",
+      "description": "Po kliknieciu 'dalej' — 5 nowych tagow pojawia sie. Poprzednie odrzucone gasna i znikaja.",
+      "workbench": "tokeny pozostaja",
+      "new_tags": 5,
+      "cta": "dalej (petla)"
+    },
+    {
+      "id": "prompt_preview",
+      "description": "Stol rozszerza sie do 14vh. Nad tokenami pojawia sie podglad promptu (monospace).",
+      "cta": "generuj (mocno swiecacy)"
+    },
+    {
+      "id": "completion",
+      "description": "Final — prompt gotowy. Eksplozja cieplych czasteczek. Przyciski kopiuj / reset.",
+      "celebration": "40 particle burst, glow wave",
+      "prompt": "widoczny w calosci, przycisk kopiuj"
+    }
+  ],
+
+  "suggestion_logic": {
+    "type": "hybrydowy",
+    "initial_pool_size": 30,
+    "initial_display": 10,
+    "subsequent_display": 5,
+    "base_algorithm": "weighted_random — synergy + conflict z bazy tagow",
+    "ai_enhancement": "jesli AI dostepne (LM Studio/OpenAI) — doklada kontekstowe sugestie",
+    "constraints": {
+      "max_same_category": 3,
+      "avoid_conflicts": true,
+      "boost_related": "1.5x",
+      "boost_complementary": "1.3x"
+    }
+  },
+
+  "ui_elements": [
+    {
+      "id": "logo",
+      "text": "su(K)no",
+      "position": "fixed top-left",
+      "font": "Georgia serif, 1.5-2.5rem, gold glow"
+    },
+    {
+      "id": "progress-bar",
+      "description": "Pasek postepu (2px) na gorze ekranu. Wypelnia sie od lewej do prawej.",
+      "color": "gradient gold",
+      "transition": "width 0.5s"
+    },
+    {
+      "id": "cta-button",
+      "text": "dalej / generuj",
+      "position": "fixed bottom-right (nad stołem)",
+      "style": "ciemnozlote tlo, gold border, glow na hover"
+    },
+    {
+      "id": "tag-count-badge",
+      "text": "zebrane: X",
+      "position": "fixed bottom-left (nad stołem)",
+      "font": "monospace, muted gold"
+    }
+  ],
+
+  "responsywnosc": {
+    "mobile": "6 tagow widocznych, workbench 12vh, ambient particles 15",
+    "tablet": "8 tagow, workbench 10vh, particles 25",
+    "desktop": "10 tagow, workbench 10vh, particles 40",
+    "ultrawide": "12 tagow, centered 1600px, particles 50"
+  },
+
+  "dostepnosc": {
+    "reduced_motion": "wylaczenie animacji + particle system",
+    "keyboard": "tab + enter do wyboru tagow, usuwania, nawigacji"
+  }
+}

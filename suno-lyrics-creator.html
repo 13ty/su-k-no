@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno Lyrics Creator v2.0</title>
+<style>
+  :root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #111118;
+    --bg-tertiary: #1a1a24;
+    --surface: #222233;
+    --surface-hover: #2a2a3e;
+    --text-primary: #e0e0ee;
+    --text-secondary: #8888aa;
+    --text-muted: #555577;
+    --accent-cyan: #00d4ff;
+    --accent-blue: #4466ff;
+    --accent-green: #00e676;
+    --accent-orange: #ff9100;
+    --accent-red: #ff1744;
+    --accent-purple: #d500f9;
+    --accent-yellow: #ffeb3b;
+    --border: #2a2a3e;
+    --shadow: rgba(0, 0, 0, 0.5);
+    --radius: 8px;
+    --radius-sm: 4px;
+    --radius-lg: 12px;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+  ::-webkit-scrollbar-thumb { background: var(--surface); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .logo h1 {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-left: 6px;
+    -webkit-text-fill-color: var(--text-secondary);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--bg-tertiary);
+    padding: 3px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    padding: 6px 18px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+  }
+
+  .nav-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
+  .nav-tab.active { color: #fff; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .nav-tab .tab-icon { margin-right: 6px; }
+
+  .settings-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .settings-indicator:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    background: rgba(0, 212, 255, 0.06);
+  }
+
+  .settings-indicator .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+  }
+
+  .settings-indicator .dot.offline { background: var(--accent-orange); }
+
+  .lyrics-layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    height: calc(100vh - 61px);
+    gap: 0;
+  }
+
+  .left-panel {
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-section {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .panel-section-header {
+    padding: 9px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-section-body { padding: 10px 14px; }
+
+  select.template-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888aa' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  select.template-select:focus { border-color: var(--accent-cyan); }
+  select.template-select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+  .template-desc {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    padding: 6px 10px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent-cyan);
+    min-height: 30px;
+  }
+
+  .template-sections { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 3px; }
+
+  .template-section-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    color: var(--accent-cyan);
+    font-family: var(--font-mono);
+    border: 1px solid var(--border);
+  }
+
+  .load-template-btn {
+    width: 100%;
+    margin-top: 6px;
+    padding: 6px 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-cyan);
+    background: rgba(0, 212, 255, 0.08);
+    color: var(--accent-cyan);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .load-template-btn:hover { background: rgba(0, 212, 255, 0.18); box-shadow: 0 0 10px rgba(0, 212, 255, 0.12); }
+
+  .metatag-grid { display: flex; flex-wrap: wrap; gap: 3px; }
+
+  .metatag-btn {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .metatag-btn:hover {
+    box-shadow: 0 0 6px rgba(0, 230, 118, 0.08);
+  }
+
+  .metatag-btn.structure { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .metatag-btn.structure:hover { background: rgba(0, 212, 255, 0.08); }
+  .metatag-btn.vocal { border-color: var(--accent-purple); color: var(--accent-purple); }
+  .metatag-btn.vocal:hover { background: rgba(213, 0, 249, 0.08); }
+  .metatag-btn.production { border-color: var(--accent-orange); color: var(--accent-orange); }
+  .metatag-btn.production:hover { background: rgba(255, 145, 0, 0.08); }
+  .metatag-btn.ai-helper { border-color: var(--accent-green); color: var(--accent-green); }
+  .metatag-btn.ai-helper:hover { background: rgba(0, 230, 118, 0.08); }
+
+  .editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 20px 8px;
+    position: relative;
+  }
+
+  .editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .editor-title { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .editor-actions { display: flex; gap: 6px; }
+
+  .editor-actions button {
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .editor-actions button:hover { border-color: var(--text-muted); color: var(--text-primary); background: var(--surface-hover); }
+
+  .editor-actions button.primary {
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+    color: #000;
+    border: none;
+    font-weight: 600;
+  }
+
+  .editor-actions button.primary:hover { opacity: 0.9; box-shadow: 0 0 14px rgba(0, 230, 118, 0.18); }
+
+  .editor-wrapper {
+    flex: 1;
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .editor-textarea {
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s, background 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+
+  .editor-textarea:focus { border-color: var(--accent-cyan); }
+  .editor-textarea.has-error { border-color: var(--accent-red); box-shadow: 0 0 10px rgba(255, 23, 68, 0.12); }
+  .editor-textarea.warning-length { border-color: var(--accent-orange); box-shadow: 0 0 10px rgba(255, 145, 0, 0.08); }
+
+  .editor-textarea.chunk-ok {
+    border-left: 3px solid var(--accent-green);
+  }
+
+  .editor-textarea.chunk-over {
+    border-left: 3px solid var(--accent-purple);
+  }
+
+  .chunk-indicator {
+    display: flex;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+    background: var(--bg-tertiary);
+  }
+
+  .chunk-segment {
+    height: 100%;
+    transition: width 0.2s;
+  }
+
+  .chunk-segment.green { background: var(--accent-green); }
+  .chunk-segment.purple { background: var(--accent-purple); }
+  .chunk-segment.grey { background: var(--text-muted); opacity: 0.3; }
+
+  .chunk-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 8px 14px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .stat-item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+  .stat-label { color: var(--text-muted); font-weight: 500; }
+  .stat-value { color: var(--text-primary); font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
+  .stat-value.warn { color: var(--accent-orange); }
+  .stat-value.danger { color: var(--accent-red); }
+  .stat-value.good { color: var(--accent-green); }
+  .stat-value.purple { color: var(--accent-purple); }
+
+  .validation-list { margin-top: 6px; }
+
+  .validation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+
+  .validation-item.warning { background: rgba(255, 145, 0, 0.1); border-left: 3px solid var(--accent-orange); color: var(--accent-orange); }
+  .validation-item.error { background: rgba(255, 23, 68, 0.1); border-left: 3px solid var(--accent-red); color: var(--accent-red); }
+  .validation-item.success { background: rgba(0, 230, 118, 0.08); border-left: 3px solid var(--accent-green); color: var(--accent-green); }
+  .validation-item.info { background: rgba(0, 212, 255, 0.08); border-left: 3px solid var(--accent-cyan); color: var(--accent-cyan); }
+  .validation-item.smart { background: rgba(213, 0, 249, 0.06); border-left: 3px solid var(--accent-purple); color: var(--accent-purple); }
+
+  .validation-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+
+  .format-tips { margin-top: 4px; }
+  .format-tip { font-size: 10px; color: var(--text-secondary); padding: 2px 0; display: flex; align-items: center; gap: 4px; }
+  .format-tip code { font-family: var(--font-mono); background: var(--surface); padding: 1px 4px; border-radius: 2px; font-size: 9px; color: var(--accent-cyan); }
+
+  /* AI ASSISTANT */
+  .ai-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    padding: 5px 8px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+  }
+
+  .ai-status .ai-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-orange); flex-shrink: 0; }
+  .ai-status .ai-dot.online { background: var(--accent-green); }
+  .ai-status .ai-dot.busy { background: var(--accent-yellow); animation: pulse 0.8s infinite; }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .ai-btn-group { display: flex; flex-direction: column; gap: 4px; }
+
+  .ai-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .ai-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0, 230, 118, 0.06); }
+  .ai-btn .ai-icon { font-size: 14px; flex-shrink: 0; }
+  .ai-btn .ai-label { flex: 1; }
+  .ai-btn .ai-chevron { font-size: 10px; color: var(--text-muted); }
+  .ai-btn.busy { opacity: 0.6; pointer-events: none; }
+  .ai-btn.busy .ai-icon { animation: pulse 0.8s infinite; }
+
+  .ai-climate-input {
+    display: none;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .ai-climate-input.open { display: block; }
+
+  .ai-climate-input input {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: var(--font);
+    outline: none;
+  }
+
+  .ai-climate-input input:focus { border-color: var(--accent-green); }
+
+  /* CLIPBOARD HISTORY */
+  .clipboard-history {
+    margin-top: 6px;
+  }
+
+  .clip-item {
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .clip-item:hover { border-color: var(--accent-cyan); color: var(--text-primary); }
+  .clip-item .clip-preview { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .clip-item .clip-restore { font-size: 10px; color: var(--accent-cyan); flex-shrink: 0; padding: 2px 6px; border-radius: 3px; cursor: pointer; }
+  .clip-item .clip-restore:hover { background: rgba(0, 212, 255, 0.1); }
+
+  /* SETTINGS MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 480px;
+    max-width: 94vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.6);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-header h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+
+  .modal-close {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: var(--accent-red); border-color: var(--accent-red); }
+
+  .modal-body { padding: 20px; }
+
+  .form-group { margin-bottom: 14px; }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--accent-cyan); }
+
+  .form-group select option { background: var(--bg-secondary); color: var(--text-primary); }
+  .form-group input[type="password"] { font-family: var(--font-mono); letter-spacing: 1px; }
+
+  .form-group .hint { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .form-group .hint code { font-family: var(--font-mono); color: var(--accent-cyan); background: var(--bg-primary); padding: 1px 4px; border-radius: 2px; }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .modal-footer button {
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-footer button:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+  .modal-footer button.primary {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    color: #fff; border: none; font-weight: 600;
+  }
+
+  .modal-footer button.primary:hover { opacity: 0.9; box-shadow: 0 0 14px rgba(0, 212, 255, 0.18); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .status-badge.connected { background: rgba(0, 230, 118, 0.12); color: var(--accent-green); }
+  .status-badge.disconnected { background: rgba(255, 23, 68, 0.12); color: var(--accent-red); }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    padding: 8px 18px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-family: var(--font);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--accent-green); }
+  .toast.error { border-color: var(--accent-red); }
+
+  .section-tag { color: var(--accent-cyan); font-weight: 500; }
+
+  .collapsible { margin-top: 6px; }
+  .collapsible-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .collapsible-header:hover { color: var(--text-secondary); }
+  .collapsible-body { display: none; padding: 4px 0; }
+  .collapsible-body.open { display: block; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">♪</div>
+    <h1>Suno Lyrics Creator <span>v2.0</span></h1>
+  </div>
+  <div class="header-actions">
+    <nav class="nav-tabs" role="tablist">
+      <a class="nav-tab" href="suno-prompt-builder.html"><span class="tab-icon">◆</span>Tag Creator</a>
+      <a class="nav-tab active" href="suno-lyrics-creator.html"><span class="tab-icon">♪</span>Lyrics Creator</a>
+    </nav>
+    <span class="settings-indicator" id="settingsBtn"><span class="dot" id="settingsDot"></span> ⚙</span>
+  </div>
+</header>
+
+<div class="lyrics-layout">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <!-- Template Selector -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>📐</span> Szablon Struktury</div>
+      <div class="panel-section-body">
+        <select class="template-select" id="templateSelect">
+          <option value="">— Wybierz szablon —</option>
+        </select>
+        <div class="template-desc" id="templateDesc">Wybierz szablon struktury piosenki.</div>
+        <div class="template-sections" id="templateSections"></div>
+        <button class="load-template-btn" id="loadTemplateBtn">▶ Załaduj szablon do edytora</button>
+      </div>
+    </div>
+
+    <!-- Structure Tags -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>📋</span> Tagi Struktury</div>
+      <div class="panel-section-body">
+        <div class="metatag-grid">
+          <button class="metatag-btn structure" data-tag="[Intro]">[Intro]</button>
+          <button class="metatag-btn structure" data-tag="[Verse 1]">[Verse 1]</button>
+          <button class="metatag-btn structure" data-tag="[Verse 2]">[Verse 2]</button>
+          <button class="metatag-btn structure" data-tag="[Pre-Chorus]">[Pre-Chorus]</button>
+          <button class="metatag-btn structure" data-tag="[Chorus]">[Chorus]</button>
+          <button class="metatag-btn structure" data-tag="[Bridge]">[Bridge]</button>
+          <button class="metatag-btn structure" data-tag="[Solo]">[Solo]</button>
+          <button class="metatag-btn structure" data-tag="[Build]">[Build]</button>
+          <button class="metatag-btn structure" data-tag="[Drop]">[Drop]</button>
+          <button class="metatag-btn structure" data-tag="[Break]">[Break]</button>
+          <button class="metatag-btn structure" data-tag="[Breakdown]">[Breakdown]</button>
+          <button class="metatag-btn structure" data-tag="[Instrumental]">[Instrumental]</button>
+          <button class="metatag-btn structure" data-tag="[Hook]">[Hook]</button>
+          <button class="metatag-btn structure" data-tag="[Outro]">[Outro]</button>
+          <button class="metatag-btn structure" data-tag="[End]">[End]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vocal Triggers -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>🎤</span> Tagi Wokalne</div>
+      <div class="panel-section-body">
+        <div class="metatag-grid">
+          <button class="metatag-btn vocal" data-tag="[Whispered]">[Whispered]</button>
+          <button class="metatag-btn vocal" data-tag="[Belted]">[Belted]</button>
+          <button class="metatag-btn vocal" data-tag="[Spoken Word]">[Spoken]</button>
+          <button class="metatag-btn vocal" data-tag="[Soft]">[Soft]</button>
+          <button class="metatag-btn vocal" data-tag="[Raspy]">[Raspy]</button>
+          <button class="metatag-btn vocal" data-tag="[Falsetto]">[Falsetto]</button>
+          <button class="metatag-btn vocal" data-tag="[Harmonies]">[Harmonies]</button>
+          <button class="metatag-btn vocal" data-tag="[Group Vocals]">[Group]</button>
+          <button class="metatag-btn vocal" data-tag="[Ad-libs]">[Ad-libs]</button>
+          <button class="metatag-btn vocal" data-tag="[Screamed]">[Screamed]</button>
+          <button class="metatag-btn vocal" data-tag="[Narrative]">[Narrative]</button>
+          <button class="metatag-btn vocal" data-tag="[Humming]">[Humming]</button>
+          <button class="metatag-btn vocal" data-tag="[Rap]">[Rap]</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parenthetical Directions -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>( )</span> Kierunki Wokalne</div>
+      <div class="panel-section-body">
+        <div class="metatag-grid">
+          <button class="metatag-btn production" data-tag="(whispered)">(whispered)</button>
+          <button class="metatag-btn production" data-tag="(belted)">(belted)</button>
+          <button class="metatag-btn production" data-tag="(spoken)">(spoken)</button>
+          <button class="metatag-btn production" data-tag="(humming)">(humming)</button>
+          <button class="metatag-btn production" data-tag="(building intensity)">(building)</button>
+          <button class="metatag-btn production" data-tag="(falsetto)">(falsetto)</button>
+          <button class="metatag-btn production" data-tag="(harmonized)">(harmonized)</button>
+          <button class="metatag-btn production" data-tag="(ad-lib)">(ad-lib)</button>
+          <button class="metatag-btn production" data-tag="(spoken, soft)">(spoken, soft)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI LYRICS ASSISTANT -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>🤖</span> Asystent AI</div>
+      <div class="panel-section-body">
+        <div class="ai-status" id="aiStatus">
+          <span class="ai-dot" id="aiDot"></span>
+          <span id="aiStatusText">Sprawdzanie połączenia...</span>
+        </div>
+        <div class="ai-btn-group">
+          <button class="ai-btn" id="aiRhythmBtn">
+            <span class="ai-icon">🎵</span>
+            <span class="ai-label">Optymalizuj Rytm i Pauzy</span>
+            <span class="ai-chevron">▶</span>
+          </button>
+          <button class="ai-btn" id="aiAdlibsBtn">
+            <span class="ai-icon">🎤</span>
+            <span class="ai-label">Generuj Chórki i Ad-liby</span>
+            <span class="ai-chevron">▶</span>
+          </button>
+          <button class="ai-btn" id="aiClimateBtn">
+            <span class="ai-icon">🌦</span>
+            <span class="ai-label">Dopasuj Słownictwo do Klimatu</span>
+            <span class="ai-chevron">▶</span>
+          </button>
+          <div class="ai-climate-input" id="climateInput">
+            <input type="text" id="climateText" placeholder="Np. mroczny / agresywny / jasny / popowy / melancholijny...">
+          </div>
+          <button class="ai-btn" id="aiExtractBtn">
+            <span class="ai-icon">🏷</span>
+            <span class="ai-label">Wyodrębnij Tagi (Style Prompt)</span>
+            <span class="ai-chevron">▶</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formatting Tips -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>💡</span> Formatowanie</div>
+      <div class="panel-section-body">
+        <div class="format-tips" id="formatTips"></div>
+      </div>
+    </div>
+
+    <!-- Clipboard History -->
+    <div class="panel-section">
+      <div class="panel-section-header"><span>📋</span> Historia Schowka</div>
+      <div class="panel-section-body">
+        <div class="clipboard-history" id="clipHistory">
+          <div style="font-size:11px;color:var(--text-muted);">Brak zapisanych wersji.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="editor-area">
+      <div class="editor-header">
+        <div class="editor-title"><span>✍</span> Edytor Tekstu</div>
+        <div class="editor-actions">
+          <button id="undoBtn">↩ Cofnij</button>
+          <button id="clearBtn">✕ Wyczyść</button>
+          <button id="copyBtn">📋 Kopiuj</button>
+          <button class="primary" id="copyPromptBtn">📋 Kopiuj jako prompt</button>
+        </div>
+      </div>
+
+      <div class="editor-wrapper">
+        <textarea class="editor-textarea" id="lyricsEditor" placeholder="Wpisz lub wklej tutaj tekst piosenki...
+
+Użyj tagów struktury w nawiasach kwadratowych, np. [Verse 1], [Chorus], [Bridge]
+
+Kliknij przyciski po lewej, aby wstawić tag w miejscu kursora."></textarea>
+      </div>
+
+      <div class="chunk-indicator" id="chunkBar">
+        <div class="chunk-segment green" id="chunkOk" style="width:100%"></div>
+        <div class="chunk-segment purple" id="chunkOver" style="width:0%"></div>
+      </div>
+      <div class="chunk-label">
+        <span id="chunkOkLabel">Chunk 1 (0 znaków)</span>
+        <span id="chunkOverLabel">Chunk 2 (Extend)</span>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-item"><span class="stat-label">Znaki:</span><span class="stat-value" id="charCount">0</span><span class="stat-label">/ 1200</span></div>
+        <div class="stat-item"><span class="stat-label">Sekcje:</span><span class="stat-value" id="sectionCount">0</span></div>
+        <div class="stat-item"><span class="stat-label">Linie:</span><span class="stat-value" id="lineCount">0</span></div>
+        <div class="stat-item"><span class="stat-label">ALL CAPS:</span><span class="stat-value" id="capsCount">0</span></div>
+        <div class="stat-item"><span class="stat-label">Smart:</span><span class="stat-value purple" id="smartCount">0</span></div>
+      </div>
+
+      <div class="validation-list" id="validationList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>⚙ Ustawienia AI</h2>
+      <button class="modal-close" id="settingsModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="selProvider">Dostawca (Provider)</label>
+        <select id="selProvider">
+          <option value="lm-studio">LM Studio (lokalny)</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic Claude</option>
+          <option value="custom-oa">Custom (OpenAI-compatible)</option>
+        </select>
+        <div class="hint">Wybierz serwer AI, z którym ma się łączyć aplikacja.</div>
+      </div>
+      <div class="form-group">
+        <label for="txtEndpoint">Adres URL (Endpoint)</label>
+        <input type="url" id="txtEndpoint" placeholder="http://localhost:1234/v1">
+        <div class="hint">Dla LM Studio domyślnie: <code>http://localhost:1234/v1</code></div>
+      </div>
+      <div class="form-group">
+        <label for="txtModel">Nazwa modelu (Model ID)</label>
+        <input type="text" id="txtModel" placeholder="llama-3.2-3b-instruct">
+        <div class="hint">Np. <code>llama-3.2-3b-instruct</code>, <code>gpt-4o</code></div>
+      </div>
+      <div class="form-group">
+        <label for="txtApiKey">Klucz API (API Key)</label>
+        <input type="password" id="txtApiKey" placeholder="sk-... (opcjonalny dla LM Studio)">
+        <div class="hint">Wymagany dla OpenAI i Anthropic. Dla LM Studio pozostaw puste.</div>
+      </div>
+      <div class="form-group" id="connectionStatus">
+        <span class="status-badge disconnected">○ Nie testowano</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="testConnectionBtn">▶ Testuj połączenie</button>
+      <button class="primary" id="saveSettingsBtn">💾 Zapisz ustawienia</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="ai-providers.js"></script>
+<script src="Sunodocs/structure-patterns.js"></script>
+<script src="Sunodocs/vocal-triggers.js"></script>
+<script src="Sunodocs/rhythm-formatting.js"></script>
+<script>
+(function() {
+  // DOM refs
+  var editor = document.getElementById('lyricsEditor');
+  var templateSelect = document.getElementById('templateSelect');
+  var templateDesc = document.getElementById('templateDesc');
+  var templateSections = document.getElementById('templateSections');
+  var loadBtn = document.getElementById('loadTemplateBtn');
+  var charCount = document.getElementById('charCount');
+  var sectionCount = document.getElementById('sectionCount');
+  var lineCount = document.getElementById('lineCount');
+  var capsCount = document.getElementById('capsCount');
+  var smartCount = document.getElementById('smartCount');
+  var validationList = document.getElementById('validationList');
+  var clearBtn = document.getElementById('clearBtn');
+  var undoBtn = document.getElementById('undoBtn');
+  var copyBtn = document.getElementById('copyBtn');
+  var copyPromptBtn = document.getElementById('copyPromptBtn');
+  var chunkOk = document.getElementById('chunkOk');
+  var chunkOver = document.getElementById('chunkOver');
+  var chunkOkLabel = document.getElementById('chunkOkLabel');
+  var chunkOverLabel = document.getElementById('chunkOverLabel');
+  var clipHistory = document.getElementById('clipHistory');
+  var toastEl = document.getElementById('toast');
+  var aiDot = document.getElementById('aiDot');
+  var aiStatusText = document.getElementById('aiStatusText');
+
+  // Constants
+  var CHUNK_LIMIT = 1000;
+  var STRUCTURE_RE = /\[(Intro|Verse\s*\d*|Pre-Chorus|Chorus|Bridge|Solo|Build|Drop|Break|Breakdown|Instrumental|Hook|Outro|End|Interlude|Refrain|Post-Chorus|Riff|Chant|Final\s+(?:Chorus|Drop))\]/gi;
+
+  // Undo stack
+  var undoStack = [];
+  var MAX_UNDO = 20;
+
+  // Clipboard history
+  var CLIP_KEY = 'suno_clip_history';
+  var MAX_CLIPS = 3;
+
+  // Smart-Parser: known synonyms → tag id mapping
+  var SMART_SYNONYMS = {
+    quiet: 'soft', whisper: 'whispered', gentle: 'soft', calm: 'soft',
+    loud: 'aggressive', powerful: 'belted', strong: 'aggressive',
+    dark: 'dark', heavy: 'heavy', distorted: 'distorted',
+    resonant: 'resonant', bright: 'bright', warm: 'warm',
+    cold: 'cold', dry: 'dry', wet: 'wet', deep: 'deep',
+    harsh: 'harsh', smooth: 'smooth', aggressive: 'aggressive',
+    minimal: 'minimal', complex: 'complex', raw: 'raw',
+    polished: 'polished', lush: 'lush', gritty: 'gritty',
+    airy: 'airy', punchy: 'punchy', tight: 'tight', loose: 'loose',
+    epic: 'epic', cinematic: 'cinematic', ambient: 'ambient',
+    female: 'female-vocal', male: 'male-vocal',
+    scream: 'screamed', spoken: 'spoken-word', narrative: 'narrative',
+    rap: 'rap', falsetto: 'falsetto', harmony: 'harmonies',
+    hum: 'humming', guitar: 'guitar-solo', drums: 'drum-fill',
+    bass: 'bass', synth: 'synth', piano: 'piano',
+    acoustic: 'acoustic', electric: 'electric',
+    chorus: 'chorus', verse: 'verse', bridge: 'bridge',
+    intro: 'intro', outro: 'outro', buildup: 'build',
+    drop: 'drop', breakdown: 'breakdown', solo: 'solo',
+    hook: 'hook', instrumental: 'instrumental'
+  };
+
+  var ADJECTIVE_NOUN_PATTERNS = [
+    { adj: 'resonant', icon: '🔊' }, { adj: 'distorted', icon: '🎸' },
+    { adj: 'ambient', icon: '🌫' }, { adj: 'clean', icon: '✨' },
+    { adj: 'heavy', icon: '🔥' }, { adj: 'soft', icon: '🕊' },
+    { adj: 'dark', icon: '🌑' }, { adj: 'bright', icon: '☀' },
+    { adj: 'warm', icon: '🔥' }, { adj: 'cold', icon: '❄' },
+    { adj: 'dry', icon: '🏜' }, { adj: 'deep', icon: '🌊' },
+    { adj: 'harsh', icon: '⚡' }, { adj: 'smooth', icon: '🍃' },
+    { adj: 'aggressive', icon: '💥' }, { adj: 'gentle', icon: '🌸' },
+    { adj: 'minimal', icon: '▫' }, { adj: 'complex', icon: '🌀' },
+    { adj: 'raw', icon: '🔥' }, { adj: 'polished', icon: '💎' },
+    { adj: 'lush', icon: '🌿' }, { adj: 'gritty', icon: '⛓' },
+    { adj: 'airy', icon: '💨' }, { adj: 'punchy', icon: '👊' },
+    { adj: 'tight', icon: '🎯' }, { adj: 'loose', icon: '🌀' },
+    { adj: 'epic', icon: '🏛' }, { adj: 'cinematic', icon: '🎬' }
+  ];
+
+  function pushUndo() {
+    undoStack.push(editor.value);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+  }
+
+  function insertAtCursor(text) {
+    var start = editor.selectionStart;
+    var end = editor.selectionEnd;
+    var before = editor.value.substring(0, start);
+    var after = editor.value.substring(end);
+    var insert = text + '\n';
+    if (end > start && before.length > 0 && before[before.length-1] !== '\n') {
+      insert = '\n' + text + '\n';
+    }
+    pushUndo();
+    editor.value = before + insert + after;
+    var pos = start + insert.length;
+    editor.selectionStart = pos;
+    editor.selectionEnd = pos;
+    editor.focus();
+    validate();
+  }
+
+  function showToast(msg, type) {
+    toastEl.textContent = msg;
+    toastEl.className = 'toast ' + (type || '') + ' show';
+    clearTimeout(toastEl._hide);
+    toastEl._hide = setTimeout(function() { toastEl.classList.remove('show'); }, 2500);
+  }
+
+  function countSections(t) { var m = t.match(STRUCTURE_RE); return m ? m.length : 0; }
+
+  function countCapsLines(t) {
+    var lines = t.split('\n'), c = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i].trim();
+      if (l.length > 2 && l === l.toUpperCase() && /[A-Z]{2,}/.test(l) && l.indexOf('[') !== 0) c++;
+    }
+    return c;
+  }
+
+  function findUnclosedBrackets(t) {
+    var lines = t.split('\n'), errs = [];
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].indexOf('[') !== -1 && lines[i].indexOf(']') === -1) {
+        errs.push({ line: i + 1, text: lines[i].trim() });
+      }
+    }
+    return errs;
+  }
+
+  function getDetectedSections(t) {
+    var m = t.match(STRUCTURE_RE);
+    if (!m) return [];
+    var uniq = [], seen = {};
+    for (var i = 0; i < m.length; i++) {
+      var k = m[i].toLowerCase();
+      if (!seen[k]) { seen[k] = true; uniq.push(m[i]); }
+    }
+    return uniq;
+  }
+
+  function runSmartParse(t) {
+    var results = [];
+    var lower = t.toLowerCase();
+    var words = lower.split(/[\s,;.!?()]+/);
+
+    for (var w = 0; w < words.length; w++) {
+      var word = words[w].replace(/[^a-z]/g, '');
+      if (word && SMART_SYNONYMS[word]) {
+        results.push({ type: 'synonim', word: word, tag: SMART_SYNONYMS[word], icon: '🔍' });
+      }
+    }
+
+    var adjWords = {};
+    for (var i = 0; i < ADJECTIVE_NOUN_PATTERNS.length; i++) {
+      adjWords[ADJECTIVE_NOUN_PATTERNS[i].adj] = ADJECTIVE_NOUN_PATTERNS[i].icon;
+    }
+
+    for (var i = 0; i < words.length - 1; i++) {
+      var w1 = words[i].replace(/[^a-z]/g, '');
+      var w2 = words[i+1].replace(/[^a-z]/g, '');
+      if (w1 && w2 && adjWords[w1] && w2.length > 2 && !SMART_SYNONYMS[w2]) {
+        results.push({ type: 'adj+noun', word: w1 + ' ' + w2, adj: w1, noun: w2, icon: adjWords[w1] });
+      }
+    }
+
+    // Deduplicate
+    var seen = {};
+    var deduped = [];
+    for (var i = 0; i < results.length; i++) {
+      var key = results[i].word;
+      if (!seen[key]) { seen[key] = true; deduped.push(results[i]); }
+    }
+    return deduped;
+  }
+
+  function updateChunkBar(len) {
+    var pctOk = Math.min(100, (len / CHUNK_LIMIT) * 100);
+    var pctOver = Math.max(0, ((len - CHUNK_LIMIT) / CHUNK_LIMIT) * 100);
+    if (pctOver > 100) pctOver = 100;
+
+    chunkOk.style.width = Math.min(100, pctOk) + '%';
+    chunkOver.style.width = Math.min(100, pctOver) + '%';
+    chunkOkLabel.textContent = 'Chunk 1 (' + Math.min(len, CHUNK_LIMIT) + ' znaków)';
+    chunkOverLabel.textContent = len > CHUNK_LIMIT ? 'Chunk 2 (Extend: +' + (len - CHUNK_LIMIT) + ' znaków)' : 'Chunk 2 (Extend)';
+
+    editor.classList.remove('chunk-ok', 'chunk-over');
+    if (len <= CHUNK_LIMIT) {
+      editor.classList.add('chunk-ok');
+    } else {
+      editor.classList.add('chunk-over');
+    }
+  }
+
+  function saveToClipHistory(text) {
+    try {
+      var history = JSON.parse(localStorage.getItem(CLIP_KEY)) || [];
+      history.unshift(text);
+      if (history.length > MAX_CLIPS) history.length = MAX_CLIPS;
+      localStorage.setItem(CLIP_KEY, JSON.stringify(history));
+      renderClipHistory();
+    } catch(e) {}
+  }
+
+  function renderClipHistory() {
+    try {
+      var history = JSON.parse(localStorage.getItem(CLIP_KEY)) || [];
+      if (history.length === 0) {
+        clipHistory.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Brak zapisanych wersji.</div>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < history.length; i++) {
+        var preview = history[i].substring(0, 80).replace(/\n/g, ' | ');
+        if (history[i].length > 80) preview += '...';
+        html += '<div class="clip-item">';
+        html += '<span class="clip-preview">' + escapeHtml(preview) + '</span>';
+        html += '<span class="clip-restore" data-idx="' + i + '">↩</span>';
+        html += '</div>';
+      }
+      clipHistory.innerHTML = html;
+      var restores = clipHistory.querySelectorAll('.clip-restore');
+      for (var i = 0; i < restores.length; i++) {
+        restores[i].addEventListener('click', function(e) {
+          e.stopPropagation();
+          var idx = parseInt(this.getAttribute('data-idx'), 10);
+          try {
+            var hist = JSON.parse(localStorage.getItem(CLIP_KEY)) || [];
+            if (hist[idx]) {
+              pushUndo();
+              editor.value = hist[idx];
+              validate();
+              showToast('Przywrócono wersję ze schowka.', 'success');
+            }
+          } catch(e) {}
+        });
+      }
+    } catch(e) {}
+  }
+
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function validate() {
+    var text = editor.value;
+    var len = text.length;
+    var sections = countSections(text);
+    var lines = text === '' ? 0 : text.split('\n').length;
+    var capsLines = countCapsLines(text);
+    var unclosed = findUnclosedBrackets(text);
+    var detected = getDetectedSections(text);
+    var smart = runSmartParse(text);
+
+    charCount.textContent = len;
+    sectionCount.textContent = sections;
+    lineCount.textContent = lines;
+    capsCount.textContent = capsLines;
+    smartCount.textContent = smart.length;
+
+    var charClass = 'good';
+    if (len > 1400) charClass = 'danger';
+    else if (len > 1100) charClass = 'warn';
+    charCount.className = 'stat-value ' + charClass;
+
+    editor.classList.remove('has-error', 'warning-length');
+    updateChunkBar(len);
+
+    var html = '';
+
+    if (unclosed.length > 0) {
+      editor.classList.add('has-error');
+      html += '<div class="validation-item error"><span class="validation-icon">✗</span><div><strong>Niedomknięty nawias:</strong> w ' + unclosed.length + ' linii';
+      html += (unclosed.length > 1 ? 'ach' : '') + ' — ';
+      html += unclosed.map(function(e) { return 'linia ' + e.line + ': "' + e.text.substring(0, 40) + '"'; }).join(', ');
+      html += '</div></div>';
+    }
+
+    if (len > 1200) {
+      editor.classList.add('warning-length');
+      html += '<div class="validation-item warning"><span class="validation-icon">⚠</span>';
+      html += '<div><strong>Tekst za długi na jedną generację</strong> (' + len + ' znaków, opt. ~1000-1200). ';
+      html += 'Linia podziału po ok. 1000 znakach (fioletowy pasek). Sugerujemy podział i użycie "Extend" po drugim refrenie.</div></div>';
+    }
+
+    if (len > 0 && len <= 1200) {
+      html += '<div class="validation-item success"><span class="validation-icon">✓</span><div>Długość tekstu w optymalnym zakresie.</div></div>';
+    }
+
+    if (capsLines > 2) {
+      html += '<div class="validation-item warning"><span class="validation-icon">⚠</span>';
+      html += '<div><strong>Za dużo ALL CAPS:</strong> ' + capsLines + ' linii. Suno może krzyczeć. Max 1-2 linii ALL CAPS na sekcję.</div></div>';
+    }
+
+    if (sections === 0 && len > 0) {
+      html += '<div class="validation-item info"><span class="validation-icon">ℹ</span><div>Brak tagów struktury — Suno może losowo rozmieścić sekcje. Dodaj [Verse], [Chorus] itp.</div></div>';
+    }
+
+    if (detected.length > 0) {
+      html += '<div class="validation-item info"><span class="validation-icon">📋</span><div>Wykryte sekcje: ';
+      html += detected.map(function(s) { return '<span class="section-tag">' + s + '</span>'; }).join(', ');
+      html += '</div></div>';
+    }
+
+    if (len > 0 && len < 200) {
+      html += '<div class="validation-item warning"><span class="validation-icon">⚠</span><div>Tekst bardzo krótki — Suno może go rozciągnąć lub powtarzać linie.</div></div>';
+    }
+
+    var exclamationCount = (text.match(/!/g) || []).length;
+    if (exclamationCount > 5) {
+      html += '<div class="validation-item warning"><span class="validation-icon">⚠</span><div>' + exclamationCount + ' wykrzykników — mogą powodować agresywny wokal.</div></div>';
+    }
+
+    // Smart-Parser results
+    if (smart.length > 0) {
+      html += '<div class="validation-item smart"><span class="validation-icon">🔍</span><div><strong>Smart-Parser:</strong> wykryto ' + smart.length + ' elementów — ';
+      html += smart.map(function(s) { return s.icon + ' ' + s.word; }).join(', ');
+      html += '</div></div>';
+    }
+
+    validationList.innerHTML = html;
+  }
+
+  function loadTemplate(id) {
+    for (var i = 0; i < STRUCTURE_PATTERNS.length; i++) {
+      if (STRUCTURE_PATTERNS[i].id === id) {
+        pushUndo();
+        editor.value = STRUCTURE_PATTERNS[i].template + '\n\n';
+        showToast('Załadowano: ' + STRUCTURE_PATTERNS[i].name, 'success');
+        validate();
+        return;
+      }
+    }
+  }
+
+  function setEditorText(text) {
+    pushUndo();
+    editor.value = text;
+    validate();
+  }
+
+  // AI SEND
+  function aiSend(messages, onChunk, onDone, onError) {
+    var dot = document.getElementById('aiDot');
+    var statusText = document.getElementById('aiStatusText');
+    dot.className = 'ai-dot busy';
+    statusText.textContent = 'AI pracuje...';
+
+    var accumulated = '';
+
+    AIProvider.send(messages,
+      function(chunk, full) {
+        accumulated = full;
+        if (onChunk) onChunk(chunk, full);
+      },
+      function(full) {
+        dot.className = 'ai-dot online';
+        statusText.textContent = 'Gotowe';
+        if (onDone) onDone(full || accumulated);
+      },
+      function(err) {
+        dot.className = 'ai-dot';
+        statusText.textContent = 'Błąd: ' + err.message.substring(0, 50);
+        if (onError) onError(err);
+      }
+    );
+  }
+
+  function checkAIStatus() {
+    var cfg = AIConfig.load();
+    var dot = document.getElementById('aiDot');
+    var statusText = document.getElementById('aiStatusText');
+    dot.className = 'ai-dot';
+    statusText.textContent = 'Sprawdzanie...';
+
+    AIProvider.send(
+      [{ role: 'user', content: 'Odpowiedz jednym słowem: OK' }],
+      null,
+      function(full) {
+        dot.className = 'ai-dot online';
+        statusText.textContent = 'Połączono: ' + cfg.provider + ' / ' + cfg.model;
+      },
+      function(err) {
+        dot.className = 'ai-dot';
+        statusText.textContent = cfg.provider + ' — brak połączenia (' + err.message.substring(0, 40) + ')';
+      }
+    );
+  }
+
+  // Init
+  function init() {
+    // Templates
+    for (var i = 0; i < STRUCTURE_PATTERNS.length; i++) {
+      var p = STRUCTURE_PATTERNS[i];
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name + ' (' + p.genre + ')';
+      templateSelect.appendChild(opt);
+    }
+
+    templateSelect.addEventListener('change', function() {
+      var id = this.value;
+      if (!id) {
+        templateDesc.textContent = 'Wybierz szablon struktury piosenki.';
+        templateSections.innerHTML = '';
+        return;
+      }
+      for (var i = 0; i < STRUCTURE_PATTERNS.length; i++) {
+        if (STRUCTURE_PATTERNS[i].id === id) {
+          templateDesc.textContent = STRUCTURE_PATTERNS[i].desc;
+          templateSections.innerHTML = STRUCTURE_PATTERNS[i].sections.map(function(s) {
+            return '<span class="template-section-tag">' + s.tag + '</span>';
+          }).join('');
+          return;
+        }
+      }
+    });
+
+    loadBtn.addEventListener('click', function() {
+      var id = templateSelect.value;
+      if (!id) { showToast('Najpierw wybierz szablon.', 'error'); return; }
+      loadTemplate(id);
+    });
+
+    // Metatag buttons
+    var allBtns = document.querySelectorAll('.metatag-btn');
+    for (var i = 0; i < allBtns.length; i++) {
+      allBtns[i].addEventListener('click', function() {
+        insertAtCursor(this.getAttribute('data-tag'));
+      });
+    }
+
+    // Editor
+    editor.addEventListener('input', validate);
+    editor.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        if (undoStack.length > 0) {
+          var prev = undoStack.pop();
+          var current = editor.value;
+          editor.value = prev;
+          validate();
+          // Push current to a redo stack if needed, but for now just allow undo
+        }
+      }
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        var activeAi = document.querySelector('.ai-btn.busy');
+        if (!activeAi) document.getElementById('aiRhythmBtn').click();
+      }
+    });
+
+    // Buttons
+    clearBtn.addEventListener('click', function() {
+      if (editor.value && !confirm('Wyczyścić cały tekst?')) return;
+      pushUndo();
+      editor.value = '';
+      validate();
+      showToast('Edytor wyczyszczony.', 'success');
+    });
+
+    undoBtn.addEventListener('click', function() {
+      if (undoStack.length > 0) {
+        var prev = undoStack.pop();
+        editor.value = prev;
+        validate();
+      } else {
+        showToast('Brak operacji do cofnięcia.', 'error');
+      }
+    });
+
+    copyBtn.addEventListener('click', function() {
+      if (!editor.value) { showToast('Brak tekstu.', 'error'); return; }
+      navigator.clipboard.writeText(editor.value).then(function() {
+        saveToClipHistory(editor.value);
+        showToast('Skopiowano do schowka!', 'success');
+      });
+    });
+
+    copyPromptBtn.addEventListener('click', function() {
+      if (!editor.value) { showToast('Brak tekstu.', 'error'); return; }
+      navigator.clipboard.writeText(editor.value).then(function() {
+        saveToClipHistory(editor.value);
+        showToast('Skopiowano — gotowe do wklejenia do Suno!', 'success');
+      });
+    });
+
+    // Format tips
+    var tipsContainer = document.getElementById('formatTips');
+    if (RHYTHM_FORMATTING && RHYTHM_FORMATTING.summary && RHYTHM_FORMATTING.summary.quick_tips) {
+      var tips = RHYTHM_FORMATTING.summary.quick_tips;
+      for (var i = 0; i < tips.length; i++) {
+        var div = document.createElement('div');
+        div.className = 'format-tip';
+        div.innerHTML = '› ' + tips[i];
+        tipsContainer.appendChild(div);
+      }
+    }
+
+    // Clipboard history
+    renderClipHistory();
+
+    // === AI ASSISTANT ===
+    document.getElementById('aiRhythmBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw wpisz tekst piosenki.', 'error'); return; }
+      var btn = this;
+      btn.classList.add('busy');
+      var msgs = [
+        AI_SYSTEM_PROMPTS.optimizeRhythm,
+        { role: 'user', content: AI_PROMPTS_USER.optimizeRhythm + '\n\n---\n\n' + editor.value }
+      ];
+      aiSend(msgs, null,
+        function(full) {
+          btn.classList.remove('busy');
+          if (full) setEditorText(full);
+        },
+        function(err) { btn.classList.remove('busy'); }
+      );
+    });
+
+    document.getElementById('aiAdlibsBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw wpisz tekst piosenki.', 'error'); return; }
+      var btn = this;
+      btn.classList.add('busy');
+      var msgs = [
+        AI_SYSTEM_PROMPTS.generateAdlibs,
+        { role: 'user', content: AI_PROMPTS_USER.generateAdlibs + '\n\n---\n\n' + editor.value }
+      ];
+      aiSend(msgs, null,
+        function(full) {
+          btn.classList.remove('busy');
+          if (full) setEditorText(full);
+        },
+        function(err) { btn.classList.remove('busy'); }
+      );
+    });
+
+    document.getElementById('aiClimateBtn').addEventListener('click', function() {
+      var input = document.getElementById('climateInput');
+      input.classList.toggle('open');
+      if (input.classList.contains('open')) {
+        document.getElementById('climateText').focus();
+      }
+    });
+
+    document.getElementById('climateText').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var climate = this.value.trim();
+        if (!climate) { showToast('Wpisz klimat (np. mroczny, popowy).', 'error'); return; }
+        if (!editor.value) { showToast('Najpierw wpisz tekst piosenki.', 'error'); return; }
+        var btn = document.getElementById('aiClimateBtn');
+        btn.classList.add('busy');
+        var prompt = AI_PROMPTS_USER.adaptVocabulary.replace('[KLIMAT]', climate);
+        var msgs = [
+          AI_SYSTEM_PROMPTS.adaptVocabulary,
+          { role: 'user', content: prompt + '\n\n---\n\n' + editor.value }
+        ];
+        var self = this;
+        aiSend(msgs, null,
+          function(full) {
+            btn.classList.remove('busy');
+            document.getElementById('climateInput').classList.remove('open');
+            self.value = '';
+            if (full) setEditorText(full);
+          },
+          function(err) { btn.classList.remove('busy'); }
+        );
+      }
+    });
+
+    document.getElementById('aiExtractBtn').addEventListener('click', function() {
+      if (!editor.value) { showToast('Najpierw wpisz tekst piosenki.', 'error'); return; }
+      var btn = this;
+      btn.classList.add('busy');
+
+      var extractPrompt = {
+        role: 'system',
+        content: 'Jesteś ekspertem od tagowania muzyki do Suno AI. Na podstawie tekstu piosenki wygeneruj zwięzły Style Prompt (max 200 znaków) zawierający: gatunek, nastrój, instrumenty, styl wokalu. Odpowiedz TYLKO samym promptem, bez komentarzy. Przykład: "alternative rock, dark and atmospheric, distorted electric guitar, heavy drums, emotional male vocals, 120 BPM"'
+      };
+
+      var msgs = [
+        extractPrompt,
+        { role: 'user', content: 'Na podstawie poniższego tekstu piosenki wygeneruj Style Prompt dla Suno AI:\n\n' + editor.value }
+      ];
+
+      aiSend(msgs, null,
+        function(full) {
+          btn.classList.remove('busy');
+          if (full) {
+            // Save to clipboard history
+            saveToClipHistory(full);
+            showToast('Wygenerowano Style Prompt — skopiowano do schowka!', 'success');
+            navigator.clipboard.writeText(full);
+
+            // Try to save to localStorage bridge for main app
+            try {
+              localStorage.setItem('suno_extracted_tags', full);
+            } catch(e) {}
+          }
+        },
+        function(err) { btn.classList.remove('busy'); }
+      );
+    });
+
+    // Settings Modal
+    var modal = document.getElementById('settingsModal');
+    var btnOpen = document.getElementById('settingsBtn');
+    var btnClose = document.getElementById('settingsModalClose');
+    var selProvider = document.getElementById('selProvider');
+    var txtEndpoint = document.getElementById('txtEndpoint');
+    var txtModel = document.getElementById('txtModel');
+    var txtApiKey = document.getElementById('txtApiKey');
+    var btnSave = document.getElementById('saveSettingsBtn');
+    var btnTest = document.getElementById('testConnectionBtn');
+    var connStatus = document.getElementById('connectionStatus');
+
+    function loadConfig() {
+      var cfg = AIConfig.load();
+      selProvider.value = cfg.provider;
+      txtEndpoint.value = cfg.endpoint;
+      txtModel.value = cfg.model;
+      txtApiKey.value = cfg.apiKey;
+      var dot = document.getElementById('settingsDot');
+      dot.className = 'dot';
+      if (cfg.provider === 'lm-studio' || cfg.provider === 'custom-oa') {
+        if (!cfg.endpoint || cfg.endpoint === 'http://localhost:1234/v1') dot.classList.add('offline');
+      } else {
+        if (!cfg.apiKey) dot.classList.add('offline');
+      }
+    }
+
+    function saveConfig() {
+      var cfg = { provider: selProvider.value, endpoint: txtEndpoint.value, model: txtModel.value, apiKey: txtApiKey.value };
+      AIConfig.save(cfg);
+      connStatus.innerHTML = '<span class="status-badge disconnected">○ Zapisano</span>';
+      loadConfig();
+      showToast('Ustawienia zapisane.', 'success');
+    }
+
+    btnOpen.addEventListener('click', function() { loadConfig(); modal.classList.add('open'); });
+    btnClose.addEventListener('click', function() { modal.classList.remove('open'); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('open'); });
+
+    btnSave.addEventListener('click', saveConfig);
+
+    btnTest.addEventListener('click', function() {
+      var cfg = AIConfig.load();
+      connStatus.innerHTML = '<span class="status-badge disconnected">⟳ Łączenie...</span>';
+      AIProvider.send(
+        [{ role: 'user', content: 'Odpowiedz jednym słowem: OK' }],
+        null,
+        function(full) {
+          connStatus.innerHTML = '<span class="status-badge connected">✔ Połączono — "' + full.substring(0, 50).replace(/\n/g, ' ') + '"</span>';
+          checkAIStatus();
+        },
+        function(err) {
+          connStatus.innerHTML = '<span class="status-badge disconnected">✗ ' + err.message.substring(0, 60) + '</span>';
+        }
+      );
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) modal.classList.remove('open');
+    });
+
+    // Check AI status on load
+    checkAIStatus();
+
+    // Initial validation
+    validate();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

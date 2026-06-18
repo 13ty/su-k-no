@@ -33,3 +33,7 @@ logs/
 tmp/
 temp/
 *.tmp
+
+suno-reference/
+.backup/
+.omo/run-continuation/

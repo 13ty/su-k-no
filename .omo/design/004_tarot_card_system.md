@@ -1,10 +1,12 @@
 # ADR-004: System Kart Tarotowych — Selekcja Tagów przez Tarot
 
-## Status: Draft
+## Status: Approved (Wdrożenie opisane w ADR-005)
 
 ## Data: 2026-06-17
 
 ## Wymaga: ADR-001 (Unified View), ADR-002 (Intent Engine), ADR-003 (Synergy Audit)
+
+> Dokument ten stanowi specyfikację funkcjonalną. Szczegółowy plan techniczny i architekturę wdrożenia opisano w [ADR-005: Plan Implementacji](./005_tarot_card_system_implementation.md).
 
 ---
 
